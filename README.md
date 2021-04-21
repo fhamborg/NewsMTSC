@@ -10,12 +10,12 @@ the repository contains our model named GRU-TSC, which achieves state-of-the-art
 TSC classification performance on NewsMTSC. Check it out - it works out of the box :-)
 
 This readme consists of the following parts: 
-* [installation of GRU-TSC](#installation)
-* [how to use our model](#target-dependent-sentiment-classification)
-* [how to train our model](#training)
+* [Installation of GRU-TSC](#installation)
+* [How to use our model](#target-dependent-sentiment-classification)
+* [How to train our model (or yours)](#training)
 
 If you only want to use the dataset, you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/master/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip)
-or [view it](https://github.com/fhamborg/NewsMTSC/tree/master/controller_data/datasets/NewsMTSC-dataset).
+or [view it here](https://github.com/fhamborg/NewsMTSC/tree/master/controller_data/datasets/NewsMTSC-dataset).
 
 To make available the model also to non-experts in computer science,
 we aimed to make the installation and using the model as easy as possible. If you face
