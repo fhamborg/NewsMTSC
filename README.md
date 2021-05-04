@@ -101,7 +101,7 @@ This repository is in part based on [ABSA-PyTorch](https://github.com/songyouwei
 We thank Song et al. for making their excellent repository open source.
 
 # How to cite
-If you use the dataset or model, please cite our paper:
+If you use the dataset or model, please cite our [paper](https://www.aclweb.org/anthology/2021.eacl-main.142/) ([PDF](https://www.aclweb.org/anthology/2021.eacl-main.142.pdf)):
 
 ```
 @InProceedings{Hamborg2021b,
