@@ -29,19 +29,23 @@ it yet, follow Anaconda's
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
 ```bash
+git clone git@github.com:fhamborg/NewsMTSC.git
+cd NewsMTSC
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc 
 
-# choose either of both: the first is recommended if you have an NVIDIA GPU that supports CUDA
+# installation of packages
+
+# installation of pytorch: choose either of both of variants: the first is better but ONLY if you have an NVIDIA GPU that supports CUDA. If you don't have one or don't know what CUDA is, we recommend to go with the second option.
 # with CUDA 10.0
 conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
 # without CUDA (calculations will be performed on your CPU, not recommended for training your own model but should be okay if you only classify sentiment in news articles)
-conda install --yes pytorch torchvision -c pytorch
+# end of pytorch's installation
 
+conda install --yes pytorch torchvision -c pytorch
 conda install --yes pandas tqdm scikit-learn
 conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn spacy<=2.1 
 conda install --yes -c anaconda requests gensim openpyxl networkx
-  
 pip install "transformers>=3.1.0"
 python -m spacy download en_core_web_sm
 
