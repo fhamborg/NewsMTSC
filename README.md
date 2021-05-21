@@ -45,21 +45,7 @@ conda install --yes -c anaconda requests gensim openpyxl networkx
   
 pip install "transformers>=3.1.0"
 python -m spacy download en_core_web_sm
-```
 
-If you want to *train your own models*, that's it! 
-
-If you want to perform *target-dependent sentiment classification on your own news
-articles*, see [Use NewsMTSC for classification](#use-newsmtsc-for-classification) 
-
-## Use GRU-TSC for classification
-If you want to classify sentiment in sentences and do not want to train your own 
-model, we've got your back. Simply download our fine-tuned model weights. You can
-download them [here](https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc) and place the file into the
-folder `pretrained_models/state_dicts/`.
-
-Alternatively, execute the following: 
-```
 wget https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc
 mkdir pretrained_models/state_dicts
 mv grutsc pretrained_models/state_dicts
