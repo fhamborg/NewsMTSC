@@ -47,7 +47,6 @@ pip install "transformers>=3.1.0"
 python -m spacy download en_core_web_sm
 
 wget https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc
-mkdir pretrained_models/state_dicts
 mv grutsc pretrained_models/state_dicts
 ```
 
