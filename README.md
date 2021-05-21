@@ -46,6 +46,7 @@ Installation of packages:
 # with CUDA 10.0
 conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
 # without CUDA (calculations will be performed on your CPU, not recommended for training your own model but should be okay if you only classify sentiment in news articles)
+conda install --yes pytorch torchvision -c pytorch
 # end of pytorch's installation
 
 conda install --yes pytorch torchvision -c pytorch
