@@ -51,7 +51,7 @@ conda install --yes pytorch torchvision -c pytorch
 
 conda install --yes pytorch torchvision -c pytorch
 conda install --yes pandas tqdm scikit-learn
-conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn spacy<=2.1 
+conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn "spacy<=2.1"
 conda install --yes -c anaconda requests gensim openpyxl networkx
 pip install "transformers>=3.1.0"
 python -m spacy download en_core_web_sm
