@@ -28,14 +28,20 @@ it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
+Setup the conda environment:
+```bash
+conda create --yes -n newsmtsc python=3.7
+conda activate newsmtsc 
+```
+
+Clone the repository:
 ```bash
 git clone git@github.com:fhamborg/NewsMTSC.git
 cd NewsMTSC
-conda create --yes -n newsmtsc python=3.7
-conda activate newsmtsc 
+```
 
-# installation of packages
-
+Installation of packages:
+```bash
 # installation of pytorch: choose either of both of variants: the first is better but ONLY if you have an NVIDIA GPU that supports CUDA. If you don't have one or don't know what CUDA is, we recommend to go with the second option.
 # with CUDA 10.0
 conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
