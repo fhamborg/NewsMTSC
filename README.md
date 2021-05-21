@@ -28,7 +28,6 @@ it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
-## Core installation
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc 
