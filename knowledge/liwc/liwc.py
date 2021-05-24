@@ -2,6 +2,8 @@ import torch
 
 from knowledge.liwc.liwchelper import load_token_parser
 
+parse = lambda x: None
+category_names = []
 parse, category_names = load_token_parser()
 
 LIWC_CATEGORY2INDEX = {}

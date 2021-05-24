@@ -7,7 +7,7 @@ from typing import Dict
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers.modeling_bert import BertPooler, BertSelfAttention
+from transformers.models.bert.modeling_bert import BertPooler, BertSelfAttention
 
 from consts import *
 from dataset import FXDataset

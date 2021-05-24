@@ -121,7 +121,11 @@ if __name__ == "__main__":
     )
     parser.add_argument("--default_lm", default="roberta-base", type=str)
     parser.add_argument(
-        "--state_dict", type=str, default="grutsc",
+        "--state_dict",
+        type=str,
+        default="grutsc",
+        help="will download default pretrained model if 'pretrained' otherwise will search in pretrained_models or use "
+             "as (relative or absolute) file path"
     )
     parser.add_argument(
         "--knowledgesources", default="nrc_emotions mpqa_subjectivity bingliu_opinion"

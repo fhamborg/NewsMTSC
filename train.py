@@ -135,10 +135,13 @@ class Instructor:
         own_model_object = own_model_object.to(self.opt.device)
         if self.opt.state_dict:
             # load weights from the state_dict
-            logger.info("loading weights from %s...", self.opt.state_dict)
-            own_model_object.load_state_dict(
-                torch.load(self.opt.state_dict, map_location=self.opt.device)
-            )
+            if self.opt.state_dict == "pretrained":
+                logger.info("loading pretrained weights")
+                state_dict = own_model_object.get_pretrained_state_dict()
+            else:
+                logger.info("loading weights from %s...", self.opt.state_dict)
+                state_dict = torch.load(self.opt.state_dict, map_location=self.opt.device)
+            own_model_object.load_state_dict(state_dict)
             logger.info("done")
         self.own_model = own_model_object
         logger.info("initialized own model")
@@ -1094,8 +1097,8 @@ def prepare_and_start_instructor(opt):
 
     # statedicts
     if opt.state_dict is not None:
-        if os.path.isfile(opt.state_dict):
-            # if exists, nothing to do
+        if os.path.isfile(opt.state_dict) or opt.state_dict == "pretrained":
+            # if exists or using pretrained, nothing to do
             pass
         else:
             # if not exists, prefix default path
@@ -1234,7 +1237,7 @@ def parse_arguments(override_args=False):
         default=None,
         help="has to be placed in folder pretrained_models",
     )
-    parser.add_argument("--state_dict", type=str, default=None)
+    parser.add_argument("--state_dict", type=str, default=None, help="downloads default model if 'pretrained'")
     parser.add_argument(
         "--single_targets", type=str2bool, nargs="?", const=True, default=False
     )

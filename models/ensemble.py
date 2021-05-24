@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch
 
 from models.FXBaseModel import FXBaseModel
-from models.singletarget.stancedetectionpaper import StanceDetectionHosseinia
 from models.singletarget.td_bert import TD_BERT
 
 
@@ -32,6 +31,7 @@ class EnsembleTopA(FXBaseModel):
 
     def __init__(self, transformer_models: Dict, opt: Namespace):
         super().__init__()
+        from models.singletarget.stancedetectionpaper import StanceDetectionHosseinia
 
         # submodels models
         self.td_bert = TD_BERT(transformer_models, opt)

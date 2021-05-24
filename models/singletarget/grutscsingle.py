@@ -6,9 +6,11 @@ import torch.nn as nn
 
 from consts import *
 from dataset import FXDataset, FXEasyTokenizer
-from models.FXBaseModel import FXBaseModel
+from models.FXBaseModel import FXBaseModel, provide_pretrained, default_pretrained
 
 
+# @default_pretrained("v1.0.0")
+# @provide_pretrained("v1.0.0", "https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc")
 class GRUTSCSingle(FXBaseModel):
     """
     Inspired from https://arxiv.org/pdf/2006.00052.pdf
