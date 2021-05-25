@@ -40,8 +40,6 @@ from losses.crossentropycrossweight import CrossEntropyLoss_CrossWeight
 from losses.crossentropylosslsr import CrossEntropyLoss_LSR
 from losses.seq2seqloss import SequenceLoss
 from models.FXEnsemble import FXEnsemble
-from models.ensemble import EnsembleTopA
-from models.ensembleb import EnsembleTopB
 from models.multitargets.contrasting import Contrasting
 from models.multitargets.random_multi import RandomMulti
 from models.multitargets.seq2seq import SeqTwoSeq
@@ -97,9 +95,6 @@ OWN_MODELNAME2CLASS = {
     "notargetclsbert": NoTargetClsBert,
     "random_multi": RandomMulti,
     "random_single": RandomSingle,
-    # ensembles
-    "EnsembleTopA": EnsembleTopA,
-    "EnsembleTopB": EnsembleTopB,
     # misc
     "fxensemble": FXEnsemble,
 }
