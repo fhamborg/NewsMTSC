@@ -27,7 +27,6 @@ from knowledge.bingliuopinion.bingliuopinion import (
     get_bingliu_polarities_as_tensor,
     get_num_bingliu_polarities,
 )
-from knowledge.liwc.liwc import get_num_liwc_categories, get_liwc_categories_as_tensor
 from knowledge.mpqasubjectivity.mpqasubjectivity import (
     get_mpqa_subjectivity_polarities_as_tensor,
     get_num_mpqa_subjectivity_polarities,
@@ -474,6 +473,7 @@ class FXEasyTokenizer:
         elif mode == "bingliu_opinion":
             num_categories = get_num_bingliu_polarities()
         elif mode == "liwc":
+            from knowledge.liwc.liwc import get_num_liwc_categories
             num_categories = get_num_liwc_categories()
         elif mode == "zeros":
             num_categories = get_num_zero_dimensions()
@@ -494,6 +494,7 @@ class FXEasyTokenizer:
             elif mode == "bingliu_opinion":
                 emotion_tensor = get_bingliu_polarities_as_tensor(word)
             elif mode == "liwc":
+                from knowledge.liwc.liwc import get_liwc_categories_as_tensor
                 emotion_tensor = get_liwc_categories_as_tensor(word)
             elif mode == "zeros":
                 emotion_tensor = get_zeros_as_tensor(word)
