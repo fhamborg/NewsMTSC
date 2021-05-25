@@ -46,14 +46,13 @@ Installation of packages:
 # with CUDA 10.0
 conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
 # without CUDA (calculations will be performed on your CPU, not recommended for training your own model but should be okay if you only classify sentiment in news articles)
-conda install --yes pytorch torchvision -c pytorch
+conda install --yes "pytorch=1.7.1" torchvision -c pytorch
 # end of pytorch's installation
 
-conda install --yes pytorch torchvision -c pytorch
 conda install --yes pandas tqdm scikit-learn
 conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn "spacy<=2.1"
 conda install --yes -c anaconda requests gensim openpyxl networkx
-pip install "transformers>=3.1.0"
+pip install "transformers>=3.1.0,<4"
 python -m spacy download en_core_web_sm
 ```
 
