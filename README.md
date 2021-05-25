@@ -42,7 +42,7 @@ cd NewsMTSC
 
 **Install pytorch:**
 
-Choose either of the following (go with the second if you don't know what CUDA is). Either use this command if your GPU supports CUDA:
+Choose either of the following. Either use this command if your GPU supports CUDA:
 ```bash
 conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
 ```
