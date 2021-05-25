@@ -31,7 +31,6 @@ from earlystopping import EarlyStopping
 from evaluator import Evaluator
 from fxlogger import get_logger
 from knowledge.bingliuopinion.bingliuopinion import get_num_bingliu_polarities
-from knowledge.liwc.liwc import get_num_liwc_categories
 from knowledge.mpqasubjectivity.mpqasubjectivity import (
     get_num_mpqa_subjectivity_polarities,
 )
@@ -1023,6 +1022,7 @@ def post_process_arguments(opt):
         elif eks == "bingliu_opinion":
             num_categories = get_num_bingliu_polarities()
         elif eks == "liwc":
+            from knowledge.liwc.liwc import get_num_liwc_categories
             num_categories = get_num_liwc_categories()
         elif eks == "zeros":
             num_categories = get_num_zero_dimensions()
