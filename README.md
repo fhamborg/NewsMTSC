@@ -28,27 +28,32 @@ it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
-Setup the conda environment:
+**Setup the conda environment:**
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc 
 ```
 
-Clone the repository:
+**Clone the repository:**
 ```bash
 git clone git@github.com:fhamborg/NewsMTSC.git
 cd NewsMTSC
 ```
 
-Installation of packages:
-```bash
-# installation of pytorch: choose either of both of variants: the first is better but ONLY if you have an NVIDIA GPU that supports CUDA. If you don't have one or don't know what CUDA is, we recommend to go with the second option.
-# with CUDA 10.0
-conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
-# without CUDA (calculations will be performed on your CPU, not recommended for training your own model but should be okay if you only classify sentiment in news articles)
-conda install --yes "pytorch=1.7.1" torchvision -c pytorch
-# end of pytorch's installation
+**Install pytorch:**
 
+Choose either of the following (go with the second if you don't know what CUDA is). Either use this command if your GPU supports CUDA:
+```bash
+conda install --yes pytorch torchvision cudatoolkit=10.1 -c pytorch 
+```
+
+Or use this command if your GPU does not support CUDA, you don't know what CUDA is, or if the previous command gives you an error:
+```bash
+conda install --yes "pytorch=1.7.1" torchvision -c pytorch
+```
+
+**Install remaining packages:**
+```bash
 conda install --yes pandas tqdm scikit-learn
 conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn "spacy>=2.1,<3"
 conda install --yes -c anaconda requests gensim openpyxl networkx
