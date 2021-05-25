@@ -23,6 +23,8 @@ any issue with using the model or notice an issue in our dataset, please feel fr
 open an issue.
 
 # Installation
+It's super easy, we promise!
+
 To keep things easy, we use Anaconda for setting up requirements. If you do not have 
 it yet, follow Anaconda's 
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
