@@ -66,7 +66,10 @@ def provide_pretrained(version, pretrained_url):
 
 def default_pretrained(version):
     """
+    Set the version which should be used as the default version and will be used when running with --pretrained.
+
     Usage:
+
         @default_pretrained("v1.0.0")
         @provide_pretrained("v1.0.0", "https://example.com/link/to/state_dict")
         class Example(nn.Module):
@@ -95,14 +98,14 @@ def __get_pretrained_wrapper_class(base_class):
         _provide_pretrained_versions = {}
 
         def __init__(self, *args, **kwargs):
-            super(base_class, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
         def has_pretrained_state_dict(self, version=None):
             version = version or self._provide_pretrained_default
             return version in self._provide_pretrained_versions
 
         def get_pretrained_state_dict(self, version=None, **kwargs):
-            url = self.__provide_pretrained_versions[version or self.__provide_pretrained_default]
+            url = self._provide_pretrained_versions[version or self._provide_pretrained_default]
             return load_state_dict_from_url(url, **kwargs)
 
     __pretrained_wrapper_classes.add(PretrainedWrapper)

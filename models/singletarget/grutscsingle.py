@@ -9,8 +9,8 @@ from dataset import FXDataset, FXEasyTokenizer
 from models.FXBaseModel import FXBaseModel, provide_pretrained, default_pretrained
 
 
-# @default_pretrained("v1.0.0")
-# @provide_pretrained("v1.0.0", "https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc")
+@default_pretrained("v1.0.0")
+@provide_pretrained("v1.0.0", "https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc")
 class GRUTSCSingle(FXBaseModel):
     """
     Inspired from https://arxiv.org/pdf/2006.00052.pdf
@@ -51,7 +51,7 @@ class GRUTSCSingle(FXBaseModel):
         ]
 
     def __init__(self, transformer_models: Dict, opt: Namespace):
-        super(GRUTSCSingle, self).__init__()
+        super().__init__()
         self.language_model = transformer_models[get_default_lm()]
         self.ks_embeddings_dense = nn.Linear(
             FXEasyTokenizer.NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES,

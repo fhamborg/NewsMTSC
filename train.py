@@ -137,7 +137,7 @@ class Instructor:
             # load weights from the state_dict
             if self.opt.state_dict == "pretrained":
                 logger.info("loading pretrained weights")
-                state_dict = own_model_object.get_pretrained_state_dict()
+                state_dict = own_model_object.get_pretrained_state_dict(map_location=self.opt.device)
             else:
                 logger.info("loading weights from %s...", self.opt.state_dict)
                 state_dict = torch.load(self.opt.state_dict, map_location=self.opt.device)
