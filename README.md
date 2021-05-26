@@ -72,9 +72,7 @@ mv grutsc pretrained_models/state_dicts
 You're all set now :-)
 
 # Target-dependent Sentiment Classification
-Target-dependent sentiment classification works out-of-the-box if you setup our 
-state_dict as described [above](#use-newsmtsc-for-classification). You may also train 
-your own model, see [below](##training). Have a look at infer.py or give it a try:
+Target-dependent sentiment classification works out-of-the-box. Have a look at infer.py or give it a try:
 ```
 python infer.py
 ```
