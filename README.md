@@ -30,19 +30,19 @@ it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
-**Setup the conda environment:**
+**1. Setup the conda environment:**
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc 
 ```
 
-**Clone the repository:**
+**2. Clone the repository:**
 ```bash
 git clone git@github.com:fhamborg/NewsMTSC.git
 cd NewsMTSC
 ```
 
-**Install pytorch:**
+**3. Install pytorch:**
 
 Choose either of the following. Either use this command if your GPU supports CUDA:
 ```bash
@@ -54,7 +54,7 @@ Or use this command if your GPU does not support CUDA, you don't know what CUDA 
 conda install --yes "pytorch=1.7.1" torchvision -c pytorch
 ```
 
-**Install remaining packages:**
+**4. Install remaining packages:**
 ```bash
 conda install --yes pandas tqdm scikit-learn
 conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn "spacy>=2.1,<3"
@@ -63,7 +63,7 @@ pip install "transformers>=3.1.0,<4"
 python -m spacy download en_core_web_sm
 ```
 
-**Download our model:**
+**5. Download our model:**
 ```bash
 wget https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc
 mv grutsc pretrained_models/state_dicts
