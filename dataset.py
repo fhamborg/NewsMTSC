@@ -52,7 +52,54 @@ for move in nlp.parser.move_names:
         if "||" in move:
             move = move.split("||")[1]
         nlp_dep_parser_labels.add(move)
-assert labels == {'agent', 'acl', 'intj', 'predet', 'expl', 'prt', 'meta', 'attr', 'pcomp', 'parataxis', 'compound', 'auxpass', 'mark', 'prep', 'dative', 'xcomp', 'npadvmod', 'advcl', 'preconj', 'pobj', 'csubj', 'dep', 'punct', 'case', 'ROOT', 'quantmod', 'cc', 'det', 'subtok', 'neg', 'nmod', 'amod', 'advmod', 'nsubjpass', 'appos', 'conj', 'dobj', 'acomp', 'nsubj', 'csubjpass', 'nummod', 'ccomp', 'oprd', 'poss', 'relcl', 'aux'}
+assert nlp_dep_parser_labels == {
+    "agent",
+    "acl",
+    "intj",
+    "predet",
+    "expl",
+    "prt",
+    "meta",
+    "attr",
+    "pcomp",
+    "parataxis",
+    "compound",
+    "auxpass",
+    "mark",
+    "prep",
+    "dative",
+    "xcomp",
+    "npadvmod",
+    "advcl",
+    "preconj",
+    "pobj",
+    "csubj",
+    "dep",
+    "punct",
+    "case",
+    "ROOT",
+    "quantmod",
+    "cc",
+    "det",
+    "subtok",
+    "neg",
+    "nmod",
+    "amod",
+    "advmod",
+    "nsubjpass",
+    "appos",
+    "conj",
+    "dobj",
+    "acomp",
+    "nsubj",
+    "csubjpass",
+    "nummod",
+    "ccomp",
+    "oprd",
+    "poss",
+    "relcl",
+    "aux",
+}
 
 
 class RandomOversampler(torch.utils.data.sampler.Sampler):
@@ -486,6 +533,7 @@ class FXEasyTokenizer:
             num_categories = get_num_bingliu_polarities()
         elif mode == "liwc":
             from knowledge.liwc.liwc import get_num_liwc_categories
+
             num_categories = get_num_liwc_categories()
         elif mode == "zeros":
             num_categories = get_num_zero_dimensions()
@@ -507,6 +555,7 @@ class FXEasyTokenizer:
                 emotion_tensor = get_bingliu_polarities_as_tensor(word)
             elif mode == "liwc":
                 from knowledge.liwc.liwc import get_liwc_categories_as_tensor
+
                 emotion_tensor = get_liwc_categories_as_tensor(word)
             elif mode == "zeros":
                 emotion_tensor = get_zeros_as_tensor(word)
