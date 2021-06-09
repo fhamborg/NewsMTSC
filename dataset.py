@@ -40,7 +40,19 @@ from models.FXBaseModel import FXBaseModel
 
 logger = get_logger()
 nlp = spacy.load("en_core_web_sm")
-nlp_dep_parser_labels = list(nlp.parser.labels)
+# this is what we could run on spacy 2.2+
+# nlp_dep_parser_labels = list(nlp.parser.labels)
+# but since we're on spacy 2.1 (and need to be because of newsalyze-backend)
+# we have to use this workaround, see:
+# https://github.com/explosion/spaCy/discussions/5135
+nlp_dep_parser_labels = set()
+for move in nlp.parser.move_names:
+    if "-" in move:
+        move = move.split("-")[1]
+        if "||" in move:
+            move = move.split("||")[1]
+        nlp_dep_parser_labels.add(move)
+assert labels == {'agent', 'acl', 'intj', 'predet', 'expl', 'prt', 'meta', 'attr', 'pcomp', 'parataxis', 'compound', 'auxpass', 'mark', 'prep', 'dative', 'xcomp', 'npadvmod', 'advcl', 'preconj', 'pobj', 'csubj', 'dep', 'punct', 'case', 'ROOT', 'quantmod', 'cc', 'det', 'subtok', 'neg', 'nmod', 'amod', 'advmod', 'nsubjpass', 'appos', 'conj', 'dobj', 'acomp', 'nsubj', 'csubjpass', 'nummod', 'ccomp', 'oprd', 'poss', 'relcl', 'aux'}
 
 
 class RandomOversampler(torch.utils.data.sampler.Sampler):
