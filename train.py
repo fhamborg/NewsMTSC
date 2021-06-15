@@ -1237,7 +1237,7 @@ def parse_arguments(override_args=False):
         default=None,
         help="has to be placed in folder pretrained_models",
     )
-    parser.add_argument("--state_dict", type=str, default=None, help="downloads default model if 'pretrained'")
+    parser.add_argument("--state_dict", type=str, default=None)
     parser.add_argument(
         "--single_targets", type=str2bool, nargs="?", const=True, default=False
     )

@@ -123,9 +123,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--state_dict",
         type=str,
-        default="pretrained",
-        help="will download default pretrained model if 'pretrained' otherwise will search in pretrained_models or use "
-             "as (relative or absolute) file path"
+        default="grutsc"
     )
     parser.add_argument(
         "--knowledgesources", default="nrc_emotions mpqa_subjectivity bingliu_opinion"
