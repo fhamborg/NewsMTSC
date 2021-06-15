@@ -45,14 +45,14 @@ nlp = spacy.load("en_core_web_sm")
 # but since we're on spacy 2.1 (and need to be because of newsalyze-backend)
 # we have to use this workaround, see:
 # https://github.com/explosion/spaCy/discussions/5135
-nlp_dep_parser_labels = set()
+nlp_dep_parser_labels = []
 for move in nlp.parser.move_names:
     if "-" in move:
         move = move.split("-")[1]
         if "||" in move:
             move = move.split("||")[1]
-        nlp_dep_parser_labels.add(move)
-assert nlp_dep_parser_labels == {
+        nlp_dep_parser_labels.append(move)
+assert set(nlp_dep_parser_labels) == {
     "agent",
     "acl",
     "intj",
