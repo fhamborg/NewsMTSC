@@ -14,7 +14,7 @@ This readme consists of the following parts:
 * [How to use our model](#target-dependent-sentiment-classification)
 * [How to train our model (or yours)](#training)
 
-If you only want to use the dataset, you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip)
+If you are only looking for the dataset, you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip)
 or [view it here](https://github.com/fhamborg/NewsMTSC/tree/master/controller_data/datasets/NewsMTSC-dataset).
 
 To make available the model also to non-experts in computer science,
