@@ -85,8 +85,13 @@ models, hyperparameters, and datasets.
 
 ## Running a single experiment
 `train.py` allows fine-grained control over the training and evaluation process, yet for most command line arguments
-we provide useful defaults. Important arguments include `--model_name` (which model is used, e.g., `LCF_BERT`) and
-`--dataset_name` (which dataset is used, e.g., `newstsc`). For more information refer to `train.py` and
+we provide useful defaults. Important arguments include 
+
+* `--model_name` (which model is used, e.g., `LCF_BERT`),
+* `--dataset_name` (which dataset is used, e.g., `newstsc`)
+* `--default_lm` (which language model is used, e.g., `roberta-base`). 
+ 
+For more information refer to `train.py` and
 `combinations_absadata_0.py`. If you just want to test the system, the command below should work out of the box.
 
 ```
