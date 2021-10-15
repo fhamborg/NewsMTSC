@@ -82,7 +82,7 @@ class Download:
             "--version",
             default=None,
             type=str,
-            help="version of the model to download, use --force to overwrite previous models"
+            help="version of the model to download, use --force to overwrite a version which was already downloaded"
         )
         parser.add_argument(
             "--force",

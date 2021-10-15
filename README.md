@@ -65,8 +65,7 @@ python -m spacy download en_core_web_sm
 
 **5. Download our model:**
 ```bash
-wget https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc
-mv grutsc pretrained_models/state_dicts
+python download.py
 ```
 
 You're all set now :-)
