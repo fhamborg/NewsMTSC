@@ -7,7 +7,9 @@ from tqdm import tqdm
 
 from SentimentClasses import SentimentClasses
 from dataset import FXEasyTokenizer
+from download import Download
 from fxlogger import get_logger
+from models.singletarget.grutscsingle import GRUTSCSingle
 from train import parse_arguments, prepare_and_start_instructor
 
 
@@ -121,7 +123,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--default_lm", default="roberta-base", type=str)
     parser.add_argument(
-        "--state_dict", type=str, default="grutsc",
+        "--state_dict",
+        type=str,
+        default=Download.model_filename(GRUTSCSingle)
     )
     parser.add_argument(
         "--knowledgesources", default="nrc_emotions mpqa_subjectivity bingliu_opinion"
