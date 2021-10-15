@@ -1,3 +1,6 @@
+import os
+from copy import copy
+
 import torch.nn as nn
 
 from abc import abstractmethod
@@ -5,7 +8,7 @@ from abc import abstractmethod
 from transformers import XLNetModel, AlbertModel, BertModel, RobertaModel
 from functools import wraps
 
-from torch.hub import load_state_dict_from_url
+from download import Download
 
 
 class FXBaseModel(nn.Module):
@@ -86,6 +89,19 @@ def default_pretrained(version):
     return decorator
 
 
+def model_includes_pretrained(model):
+    """
+    Checks if a model-class includes the methods to load pretrained models.
+
+    Arguments:
+        model Model-class to check.
+
+    Returns:
+        True if it includes the functionality.
+    """
+    return hasattr(model, 'has_pretrained_state_dict') and hasattr(model, 'get_pretrained_state_dict')
+
+
 __pretrained_wrapper_classes = set()
 
 
@@ -100,13 +116,32 @@ def __get_pretrained_wrapper_class(base_class):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
 
-        def has_pretrained_state_dict(self, version=None):
-            version = version or self._provide_pretrained_default
-            return version in self._provide_pretrained_versions
+        @classmethod
+        def has_pretrained_state_dict(cls, version=None):
+            version = version or cls._provide_pretrained_default
+            return version in cls._provide_pretrained_versions
 
-        def get_pretrained_state_dict(self, version=None, **kwargs):
-            url = self._provide_pretrained_versions[version or self._provide_pretrained_default]
-            return load_state_dict_from_url(url, **kwargs)
+        @classmethod
+        def get_pretrained_state_dict(cls, version=None, download_if_not_exists=True, **kwargs):
+            path = Download.model_path(cls, version)
+            if os.path.isfile(path):
+                if download_if_not_exists:
+                    Download.download(cls, version, False)
+                else:
+                    raise FileNotFoundError('State dict not found')
+            return cls.load_state_dict(path, **kwargs)
+
+        @classmethod
+        def get_pretrained_versions(cls):
+            return copy(cls._provide_pretrained_versions)
+
+        @classmethod
+        def get_pretrained_source(cls, version=None):
+            return cls._provide_pretrained_versions[version or cls._provide_pretrained_default]
+
+        @classmethod
+        def get_pretrained_default_version(cls):
+            return cls._provide_pretrained_default
 
     __pretrained_wrapper_classes.add(PretrainedWrapper)
     return PretrainedWrapper
