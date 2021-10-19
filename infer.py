@@ -10,20 +10,21 @@ from dataset import FXEasyTokenizer
 from download import Download
 from fxlogger import get_logger
 from models.singletarget.grutscsingle import GRUTSCSingle
-from train import parse_arguments, prepare_and_start_instructor
+from train import (
+    parse_arguments as parse_arguments_from_train,
+    prepare_and_start_instructor,
+)
 
 
 class TargetSentimentClassifier:
     def __init__(
-        self,
-        opt=None,
-        single_targets=True,
+        self, opt=None, single_targets=True,
     ):
         self.logger = get_logger()
 
         if not opt:
             opt = parse_arguments(override_args=True)
-        default_opts = parse_arguments(override_args=False)
+        default_opts = parse_arguments_from_train(override_args=False)
 
         for key, val in vars(opt).items():
             if val is not None:
@@ -117,7 +118,7 @@ class TargetSentimentClassifier:
         raise ValueError(label)
 
 
-if __name__ == "__main__":
+def parse_arguments(override_args=False):
     parser = argparse.ArgumentParser()
     parser.add_argument("--own_model_name", default="grutsc", type=str)
     parser.add_argument(
@@ -140,7 +141,20 @@ if __name__ == "__main__":
         "CPU",
     )
 
-    opt = parser.parse_args()
+    # if own_args == None -> parse_args will use sys.argv
+    # if own_args == [] -> parse_args will use this empty list instead
+    own_args = None
+    if override_args:
+        own_args = []
+
+    # create arguments
+    opt = parser.parse_args(args=own_args)
+
+    return opt
+
+
+if __name__ == "__main__":
+    parse_arguments(override_args=False)
 
     tsc = TargetSentimentClassifier(opt)
     # print(
