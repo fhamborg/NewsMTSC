@@ -1143,7 +1143,7 @@ def parse_arguments(override_args=False):
     parser.add_argument(
         "--training_mode", type=str2bool, nargs="?", const=True, default=True
     )
-    parser.add_argument("--own_model_name", default=None, type=str)
+    parser.add_argument("--own_model_name", default="grutsc", type=str)
     parser.add_argument(
         "--dataset_name",
         default=None,
@@ -1246,7 +1246,7 @@ def parse_arguments(override_args=False):
     )
     parser.add_argument("--loss", type=str, default="crossentropy")
     parser.add_argument("--targetclasses", type=str, default="newsmtsc3")
-    parser.add_argument("--knowledgesources", nargs="+", default=list())
+    parser.add_argument("--knowledgesources", nargs="+", default="nrc_emotions mpqa_subjectivity bingliu_opinion")
     parser.add_argument(
         "--is_use_natural_target_phrase_for_spc",
         type=str2bool,
@@ -1254,7 +1254,7 @@ def parse_arguments(override_args=False):
         const=True,
         default=False,
     )
-    parser.add_argument("--default_lm", type=str, default=BERT_BASE_UNCASED)
+    parser.add_argument("--default_lm", type=str, default=ROBERTA_BASE)
     parser.add_argument("--run_id", type=int, default=0)
     parser.add_argument("--coref_mode_in_training", type=str, default="ignore")
 

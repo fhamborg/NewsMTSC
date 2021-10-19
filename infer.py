@@ -15,10 +15,14 @@ from train import parse_arguments, prepare_and_start_instructor
 
 class TargetSentimentClassifier:
     def __init__(
-        self, opt, single_targets=True,
+        self,
+        opt=None,
+        single_targets=True,
     ):
         self.logger = get_logger()
 
+        if not opt:
+            opt = parse_arguments(override_args=True)
         default_opts = parse_arguments(override_args=False)
 
         for key, val in vars(opt).items():
@@ -123,9 +127,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--default_lm", default="roberta-base", type=str)
     parser.add_argument(
-        "--state_dict",
-        type=str,
-        default=Download.model_filename(GRUTSCSingle)
+        "--state_dict", type=str, default=Download.model_filename(GRUTSCSingle)
     )
     parser.add_argument(
         "--knowledgesources", default="nrc_emotions mpqa_subjectivity bingliu_opinion"
