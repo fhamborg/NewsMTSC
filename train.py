@@ -137,10 +137,14 @@ class Instructor:
             # load weights from the state_dict
             if self.opt.state_dict == "pretrained":
                 logger.info("loading pretrained weights")
-                state_dict = own_model_object.get_pretrained_state_dict(map_location=self.opt.device)
+                state_dict = own_model_object.get_pretrained_state_dict(
+                    map_location=self.opt.device
+                )
             else:
                 logger.info("loading weights from %s...", self.opt.state_dict)
-                state_dict = torch.load(self.opt.state_dict, map_location=self.opt.device)
+                state_dict = torch.load(
+                    self.opt.state_dict, map_location=self.opt.device
+                )
             own_model_object.load_state_dict(state_dict)
             logger.info("done")
         self.own_model = own_model_object
@@ -1021,6 +1025,7 @@ def post_process_arguments(opt):
             num_categories = get_num_bingliu_polarities()
         elif eks == "liwc":
             from knowledge.liwc.liwc import get_num_liwc_categories
+
             num_categories = get_num_liwc_categories()
         elif eks == "zeros":
             num_categories = get_num_zero_dimensions()
@@ -1138,7 +1143,7 @@ def prepare_and_start_instructor(opt):
         return ins
 
 
-def parse_arguments(override_args=False):
+def parse_arguments(override_args=False, overwrite_logging_level=None):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--training_mode", type=str2bool, nargs="?", const=True, default=True
@@ -1257,6 +1262,9 @@ def parse_arguments(override_args=False):
     parser.add_argument("--default_lm", type=str, default=ROBERTA_BASE)
     parser.add_argument("--run_id", type=int, default=0)
     parser.add_argument("--coref_mode_in_training", type=str, default="ignore")
+    parser.add_argument(
+        "--logging", type=str, default="INFO",
+    )
 
     # if own_args == None -> parse_args will use sys.argv
     # if own_args == [] -> parse_args will use this empty list instead
@@ -1270,6 +1278,10 @@ def parse_arguments(override_args=False):
     # add basepath
     dir_path = os.path.dirname(os.path.realpath(__file__))
     opt.base_path = dir_path
+
+    # set logging
+    if overwrite_logging_level:
+        logger.setLevel(overwrite_logging_level)
 
     return opt
 

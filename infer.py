@@ -18,13 +18,15 @@ from train import (
 
 class TargetSentimentClassifier:
     def __init__(
-        self, opt=None, single_targets=True,
+        self, opt=None, single_targets=True, logging_level="ERROR",
     ):
         self.logger = get_logger()
 
+        default_opts = parse_arguments_from_train(
+            override_args=False, overwrite_logging_level=logging_level
+        )
         if not opt:
             opt = parse_arguments(override_args=True)
-        default_opts = parse_arguments_from_train(override_args=False)
 
         for key, val in vars(opt).items():
             if val is not None:
@@ -141,6 +143,9 @@ def parse_arguments(override_args=False):
         help="e.g., cuda:0; if None: any CUDA device will be used if available, else "
         "CPU",
     )
+    parser.add_argument(
+        "--logging", type=str, default="ERROR",
+    )
 
     # if own_args == None -> parse_args will use sys.argv
     # if own_args == [] -> parse_args will use this empty list instead
@@ -155,7 +160,12 @@ def parse_arguments(override_args=False):
 
 
 if __name__ == "__main__":
-    parse_arguments(override_args=False)
+    """
+    these are just some tests to understand how to invoke the classifier
+    TODO here we should have an argparser and functionality so that the tool can also
+    be invoked from cli
+    """
+    opt = parse_arguments(override_args=False)
 
     tsc = TargetSentimentClassifier(opt)
     # print(
