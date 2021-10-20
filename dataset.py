@@ -189,13 +189,26 @@ class FXEasyTokenizer:
     def prepare_left_segment(text_left: str):
         """
         Prepares the left text segment. See FXDataset:task_to_dataset_item for more
-        information.
+        information. Removes any leading newlines.
         :param text_left:
         :return:
         """
+        while len(text_left) > 0 and text_left[0] == "\n":
+            text_left = text_left[1:]
         if len(text_left) > 0 and text_left[-1] != " ":
             text_left += " "
         return text_left
+
+    @staticmethod
+    def prepare_target_mention(target_mention: str):
+        """
+        Removes any leading newlines.
+        :param target_mention:
+        :return:
+        """
+        while len(target_mention) > 0 and target_mention[0] == "\n":
+            target_mention = target_mention[1:]
+        return target_mention
 
     @staticmethod
     def prepare_right_segment(text_right: str):
@@ -911,7 +924,7 @@ class FXEasyTokenizer:
             coref_target_mask = self._create_target_mask(
                 tok_obj,
                 self.prepare_left_segment(coref_target["text_left"]),
-                coref_target["mention"],
+                self.prepare_target_mention(coref_target["mention"]),
                 "",
                 for_text_with_special_tokens=True,
             )
@@ -1115,6 +1128,7 @@ class FXDataset(Dataset):
         # yield different indexes, e.g., if "Smith's" is part of the LM's
         # tokenizer's vocabulary. for more information, see NA-633 and NA-643.
         text_left = FXEasyTokenizer.prepare_left_segment(text_left)
+        target_mention = FXEasyTokenizer.prepare_target_mention(target_mention)
         text_right = FXEasyTokenizer.prepare_right_segment(text_right)
         text = FXEasyTokenizer.create_entire_text(
             text_left, target_mention, text_right, is_return_modified_text_left=False,

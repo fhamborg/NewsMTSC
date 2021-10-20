@@ -84,6 +84,7 @@ class TargetSentimentClassifier:
         # assert text_right.startswith(' ')
 
         text_left = FXEasyTokenizer.prepare_left_segment(text_left)
+        target_mention = FXEasyTokenizer.prepare_target_mention(target_mention)
         text_right = FXEasyTokenizer.prepare_right_segment(text_right)
 
         indexed_example = self.tokenizer.create_model_input_seqs(
