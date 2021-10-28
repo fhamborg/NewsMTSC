@@ -84,18 +84,16 @@ models, hyperparameters, and datasets.
 
 ## Running a single experiment
 `train.py` allows fine-grained control over the training and evaluation process, yet for most command line arguments
-we provide useful defaults. Important arguments include
+we provide useful defaults. Two arguments are required:
 
-* `--model_name` (which model is used, e.g., `LCF_BERT`),
-* `--dataset_name` (which dataset is used, e.g., `newstsc`),
-* `--default_lm` (which language model is used, e.g., `roberta-base`),
-* `--dataset_name` (which dataset is used for training; must be a folder in `controller_data/datasets`).
+* `--own_model_name` (which model is used, e.g., `grutsc`),
+* `--dataset_name` (which dataset is used, e.g., `newsmtsc-rw`).
 
 For more information refer to `train.py` and
-`combinations_absadata_0.py`. If you just want to test the system, the command below should work out of the box.
+`combinations_absadata_0.py`. If you just want to get started quickly, the command below should work out of the box. 
 
 ```
-python train.py --model_name lcf_bert --optimizer adam --initializer xavier_uniform_ --learning_rate 2e-5 --batch_size 16 --balancing None --num_epoch 3 --lsr True --use_tp_placeholders False --eval_only_after_last_epoch True --devmode False --local_context_focus cdm --SRD 3 --pretrained_model_name bert_news_ccnc_10mio_3ep --snem recall_avg --dataset_name newstsc --experiment_path ./experiments/newstsc_20191126-115759/0/ --crossval 0 --task_format newstsc
+python train.py --own_model_name grutsc --dataset_name newsmtsc-rw
 ```
 
 ## Running multiple experiments

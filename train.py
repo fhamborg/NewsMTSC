@@ -578,7 +578,7 @@ class Instructor:
                 os.makedirs(filepath_stats_base, exist_ok=True)
                 create_save_plotted_confusion_matrix(
                     dev_stats["confusion_matrix"],
-                    expected_labels=self.sorted_expected_label_values,
+                    expected_labels=SentimentClasses.get_sorted_expected_label_values(),
                     basepath=filepath_stats_base,
                 )
                 logger.debug(
@@ -951,6 +951,7 @@ def check_arguments(opt):
     :param opt:
     :return:
     """
+
     if not (opt.single_targets != opt.multi_targets):
         _die_gracefully("you must use either " "single_targets or multi_targets")
 
@@ -1006,6 +1007,10 @@ def check_arguments(opt):
 
 
 def post_process_arguments(opt):
+    # if neither single nor multi targets is enabled, assume default, i.e., single
+    if not opt.single_targets and not opt.multi_targets:
+        opt.single_targets = True
+
     # post process
     if type(opt.knowledgesources) == str:
         # should be a list but sometimes this does not work...
@@ -1144,6 +1149,15 @@ def prepare_and_start_instructor(opt):
 
 
 def parse_arguments(override_args=False, overwrite_logging_level=None):
+    """
+    Where applicable, for each argument a default is defined that led to the best
+    results in our experiments for grutsc (which itself is set as a default for the
+    corresponding argument).
+    :param override_args:
+    :param overwrite_logging_level:
+    :return:
+    """
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--training_mode", type=str2bool, nargs="?", const=True, default=True
@@ -1155,7 +1169,7 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
         type=str,
         help="name of the sub-folder in 'datasets' containing files named [train,dev,test].jsonl",
     )
-    parser.add_argument("--data_format", default=None, type=str)
+    parser.add_argument("--data_format", default="newsmtsc", type=str)
     parser.add_argument("--optimizer", default="adam", type=str)
     parser.add_argument("--initializer", default="xavier_uniform_", type=str)
     parser.add_argument(
@@ -1168,12 +1182,12 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     parser.add_argument("--l2reg", default=0.01, type=float)
     parser.add_argument(
         "--num_epoch",
-        default=10,
+        default=3,
         type=int,
         help="try larger number for non-BERT models",
     )
     parser.add_argument(
-        "--batch_size", default=64, type=int, help="try 16, 32, 64 for BERT models"
+        "--batch_size", default=16, type=int, help="try 16, 32, 64 for BERT models"
     )
     parser.add_argument("--log_step", default=5, type=int)
     parser.add_argument("--max_seq_len", default=150, type=int)
@@ -1212,7 +1226,7 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     )
     parser.add_argument(
         "--experiment_path",
-        default=None,
+        default="./experiments/default",
         type=str,
         help="if defined, all data will be read from / saved to a folder in the experiments folder",
     )
@@ -1239,7 +1253,7 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     parser.add_argument(
         "--pretrained_model_name",
         type=str,
-        default=None,
+        default="default",
         help="has to be placed in folder pretrained_models",
     )
     parser.add_argument("--state_dict", type=str, default=None)
@@ -1251,7 +1265,11 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     )
     parser.add_argument("--loss", type=str, default="crossentropy")
     parser.add_argument("--targetclasses", type=str, default="newsmtsc3")
-    parser.add_argument("--knowledgesources", nargs="+", default=list())
+    parser.add_argument(
+        "--knowledgesources",
+        nargs="+",
+        default=["mpqa_subjectivity", "nrc_emotions", "liwc"],
+    )
     parser.add_argument(
         "--is_use_natural_target_phrase_for_spc",
         type=str2bool,
