@@ -83,6 +83,8 @@ automatically. This is for example useful for model selection and evaluating hun
 models, hyperparameters, and datasets.
 
 ## Running a single experiment
+Goal: training a model with a user-defined (hyper)parameter combination.
+
 `train.py` allows fine-grained control over the training and evaluation process, yet for most command line arguments
 we provide useful defaults. Two arguments are required:
 
@@ -96,7 +98,9 @@ For more information refer to `train.py` and
 python train.py --own_model_name grutsc --dataset_name newsmtsc-rw
 ```
 
-## Running multiple experiments
+## Running multiple experiments 
+Goal: finding the (hyper)parameter combination to train a model that achieves the best performance.
+
 `controller.py` takes a set of values for each argument, creates combinations of arguments, applies conditions to remove
 unnecessary combinations (e.g., some arguments may only be used for a specific model), and creates a multiprocessing
 pool to run experiments of these argument combinations in parallel. After completion, `controller.py` creates a summary,
