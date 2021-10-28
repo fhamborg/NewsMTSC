@@ -87,8 +87,9 @@ models, hyperparameters, and datasets.
 we provide useful defaults. Important arguments include
 
 * `--model_name` (which model is used, e.g., `LCF_BERT`),
-* `--dataset_name` (which dataset is used, e.g., `newstsc`)
-* `--default_lm` (which language model is used, e.g., `roberta-base`).
+* `--dataset_name` (which dataset is used, e.g., `newstsc`),
+* `--default_lm` (which language model is used, e.g., `roberta-base`),
+* `--dataset_name` (which dataset is used for training; must be a folder in `controller_data/datasets`).
 
 For more information refer to `train.py` and
 `combinations_absadata_0.py`. If you just want to test the system, the command below should work out of the box.
