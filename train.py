@@ -1035,7 +1035,7 @@ def post_process_arguments(opt):
         elif eks == "zeros":
             num_categories = get_num_zero_dimensions()
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f"unknown knowledgesource: {eks}")
         FXEasyTokenizer.NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES += num_categories
         logger.info(
             "updated total number of categories to %s with EKS %s",
