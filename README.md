@@ -4,10 +4,10 @@ news articles reporting on policy issues. The dataset consists of more than 11k 
 sentences, which we sampled from news articles from online US news outlets. More
 information can be found in our paper published at the EACL 2021.
 
-This repository contains the dataset for target-dependent
+This repository contains the **dataset** for target-dependent
 sentiment classification in news articles reporting on policy issues. Additionally,
-the repository contains our model named GRU-TSC, which achieves state-of-the-art
-TSC classification performance on NewsMTSC. Check it out - it works out of the box :-)
+the repository contains our **model** named GRU-TSC, which achieves state-of-the-art
+TSC classification performance on NewsMTSC. Check it out - it **works out of the box** :-)
 
 This readme consists of the following parts:
 * [Installation of GRU-TSC](#installation)
@@ -17,10 +17,10 @@ This readme consists of the following parts:
 If you are only looking for the dataset, you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip)
 or [view it here](https://github.com/fhamborg/NewsMTSC/tree/master/controller_data/datasets/NewsMTSC-dataset).
 
-To make available the model also to non-experts in computer science,
+To make the model available also to users without programming skills,
 we aimed to make the installation and using the model as easy as possible. If you face
-any issue with using the model or notice an issue in our dataset, please feel free to
-open an issue.
+any issue with using the model or notice an issue in our dataset, you are more than welcome to [open
+an issue](https://github.com/fhamborg/NewsMTSC/issues).
 
 # Installation
 It's super easy, we promise!
@@ -83,6 +83,8 @@ automatically. This is for example useful for model selection and evaluating hun
 models, hyperparameters, and datasets.
 
 ## Running a single experiment
+Goal: training a model with a user-defined (hyper)parameter combination.
+
 `train.py` allows fine-grained control over the training and evaluation process, yet for most command line arguments
 we provide useful defaults. Two arguments are required:
 
@@ -96,7 +98,9 @@ For more information refer to `train.py` and
 python train.py --own_model_name grutsc --dataset_name newsmtsc-rw
 ```
 
-## Running multiple experiments
+## Running multiple experiments 
+Goal: finding the (hyper)parameter combination to train a model that achieves the best performance.
+
 `controller.py` takes a set of values for each argument, creates combinations of arguments, applies conditions to remove
 unnecessary combinations (e.g., some arguments may only be used for a specific model), and creates a multiprocessing
 pool to run experiments of these argument combinations in parallel. After completion, `controller.py` creates a summary,
