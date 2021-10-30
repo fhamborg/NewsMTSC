@@ -30,42 +30,26 @@ it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/).
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
+We currently still require python 3.8. If your package manager offers it, just install it from there. Otherwise, you can
+install it e.g. via coda:
+
 **1. Setup the conda environment:**
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc
 ```
 
-**2. Clone the repository:**
+**2. Install DeepNewsAnalysis:**
 ```bash
-git clone git@github.com:fhamborg/NewsMTSC.git
-cd NewsMTSC
+pip install DeepNewsSentiment        # without cuda support
+pip install DeepNewsSentiment[cuda]  # with cuda support
 ```
 
-**3. Install pytorch:**
+**3. Download models (our pretrained state_dict and spacys en_core_web_sm):**
 
-Choose either of the following. Either use this command if your GPU supports CUDA:
-```bash
-conda install --yes "pytorch=1.7.1" torchvision cudatoolkit=10.1 -c pytorch
 ```
-
-Or use this command if your GPU does not support CUDA, you don't know what CUDA is, or if the previous command gives you an error:
-```bash
-conda install --yes "pytorch=1.7.1" torchvision -c pytorch
-```
-
-**4. Install remaining packages:**
-```bash
-conda install --yes pandas tqdm scikit-learn
-conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn "spacy>=2.1,<3"
-conda install --yes -c anaconda requests gensim openpyxl networkx
-pip install "transformers>=3.1.0,<4"
 python -m spacy download en_core_web_sm
-```
-
-**5. Download our model:**
-```bash
-python download.py
+python -m DeepNewsSentiment download
 ```
 
 You're all set now :-)
