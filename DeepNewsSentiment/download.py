@@ -1,10 +1,8 @@
 """
 Download a specific version of a finetuned model and place it in pretrained_models.
 """
-import argparse
 import os
 import string
-from contextlib import suppress
 
 import torch
 
@@ -12,9 +10,6 @@ from DeepNewsSentiment.fxlogger import get_logger
 
 
 class Download:
-    MODEL_DIRECTORY = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "pretrained_models", "state_dicts"
-    )
 
     def __init__(
         self, own_model_name, version="default", force=False, list_versions=False
@@ -76,7 +71,10 @@ class Download:
 
     @classmethod
     def model_path(cls, model_cls, version=None):
-        return os.path.join(cls.MODEL_DIRECTORY, cls.model_filename(model_cls, version))
+        return os.path.join(torch.hub.get_dir(),
+                            "pretrained_models",
+                            "state_dicts",
+                            cls.model_filename(model_cls, version))
 
     @staticmethod
     def add_subparser(subparser):

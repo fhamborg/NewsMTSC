@@ -39,7 +39,11 @@ from DeepNewsSentiment.knowledge.zeros.zerosknowledge import get_num_zero_dimens
 from DeepNewsSentiment.models.FXBaseModel import FXBaseModel
 
 logger = get_logger()
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    spacy.cli.download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 # this is what we could run on spacy 2.2+
 # nlp_dep_parser_labels = list(nlp.parser.labels)
 # but since we're on spacy 2.1 (and need to be because of newsalyze-backend)
