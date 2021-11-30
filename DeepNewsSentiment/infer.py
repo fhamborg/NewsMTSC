@@ -131,7 +131,7 @@ def parse_arguments(override_args=False):
     )
     parser.add_argument("--default_lm", default="roberta-base", type=str)
     parser.add_argument(
-        "--state_dict", type=str, default=Download.model_filename(GRUTSCSingle)
+        "--state_dict", type=str, default=Download.model_path(GRUTSCSingle)
     )
     parser.add_argument(
         "--knowledgesources", default="nrc_emotions mpqa_subjectivity bingliu_opinion"

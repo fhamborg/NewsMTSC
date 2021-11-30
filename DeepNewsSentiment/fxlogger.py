@@ -15,7 +15,7 @@ def get_logger():
 
         logger = logging.getLogger("DeepNewsSentiment")
         if logger.level == logging.NOTSET:
-            logger.setLevel(logging.INFO)
+            logger.setLevel(logging.ERROR)
 
         if len(logger.handlers) == 0:
             logger.addHandler(handler)

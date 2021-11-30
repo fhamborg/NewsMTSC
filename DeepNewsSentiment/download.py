@@ -50,15 +50,18 @@ class Download:
             print(f'"{version}"{default_str}: {source}')
 
     @classmethod
-    def download(cls, model_cls, version=None, force=False):
+    def download(cls, model_cls, version=None, force=False, skip_if_exists=True):
         source = model_cls.get_pretrained_source(version)
         path = cls.model_path(model_cls, version)
         if not force and os.path.isfile(path):
+            if skip_if_exists:
+                return
             print("Model file already exists. Use --force to overwrite.")
             exit(2)
         print(f"Downloading to {path}:")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         torch.hub.download_url_to_file(source, path)
+        return path
 
     @staticmethod
     def model_filename(model_cls, version=None):

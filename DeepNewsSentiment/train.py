@@ -27,6 +27,7 @@ from transformers import (
 from DeepNewsSentiment.SentimentClasses import SentimentClasses
 from DeepNewsSentiment.consts import *
 from DeepNewsSentiment.dataset import FXDataset, RandomOversampler, FXEasyTokenizer
+from DeepNewsSentiment.download import Download
 from DeepNewsSentiment.earlystopping import EarlyStopping
 from DeepNewsSentiment.evaluator import Evaluator
 from DeepNewsSentiment.fxlogger import get_logger
@@ -134,17 +135,11 @@ class Instructor:
         own_model_object = own_model_class(self.transformer_models, self.opt)
         own_model_object = own_model_object.to(self.opt.device)
         if self.opt.state_dict:
-            # load weights from the state_dict
-            if self.opt.state_dict == "pretrained":
-                logger.info("loading pretrained weights")
-                state_dict = own_model_object.get_pretrained_state_dict(
-                    map_location=self.opt.device
-                )
-            else:
-                logger.info("loading weights from %s...", self.opt.state_dict)
-                state_dict = torch.load(
-                    self.opt.state_dict, map_location=self.opt.device
-                )
+            Download.download(own_model_class)
+            logger.info("loading weights from %s...", self.opt.state_dict)
+            state_dict = torch.load(
+                self.opt.state_dict, map_location=self.opt.device
+            )
             own_model_object.load_state_dict(state_dict)
             logger.info("done")
         self.own_model = own_model_object
