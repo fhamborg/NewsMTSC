@@ -1050,7 +1050,8 @@ class FXDataset(Dataset):
         # perform target mention check
         assert (
             check_mention == target_check_mention
-        ), f"indexes do not match: '{check_mention}' vs '{target_check_mention}'"
+        ), f"indexes do not match: '{check_mention}' vs '{target_check_mention}' " \
+           f"({text_left}; {text_right}; {target_start_char}; {target_end_char})"
 
         return text_left, text_right
 
