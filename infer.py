@@ -18,30 +18,41 @@ from train import (
 
 class TargetSentimentClassifier:
     def __init__(
-        self, opt=None, single_targets=True, logging_level="ERROR",
+        self,
+        opts_from_infer=None,
+        single_targets=True,
+        logging_level="ERROR",
+        state_dict=None,
     ):
         self.logger = get_logger()
 
-        default_opts = parse_arguments_from_train(
+        # get the default parameters from train.py
+        final_opts = parse_arguments_from_train(
             override_args=False, overwrite_logging_level=logging_level
         )
-        if not opt:
-            opt = parse_arguments(override_args=True)
+        # if no arguments have been passed, get the defaults of infer.py (and since
+        # override_args=True, not the arguments passed by the console (in args) will be
+        # used but just the defaults defined in parse_arguments
+        if not opts_from_infer:
+            opts_from_infer = parse_arguments(override_args=True)
 
-        for key, val in vars(opt).items():
+        for key, val in vars(opts_from_infer).items():
             if val is not None:
-                previous_val = getattr(default_opts, key)
+                previous_val = getattr(final_opts, key)
                 self.logger.info("overwriting: %s=%s to %s", key, previous_val, val)
-                setattr(default_opts, key, val)
+                setattr(final_opts, key, val)
 
-        default_opts.single_targets = single_targets
-        default_opts.multi_targets = not single_targets
+        # set custom variables
+        final_opts.single_targets = single_targets
+        final_opts.multi_targets = not single_targets
+        if state_dict:
+            final_opts.state_dict = state_dict
 
         # set training_mode to False so that we get the Instructor object
-        default_opts.training_mode = False
+        final_opts.training_mode = False
 
         # prepare and initialize instructor
-        instructor = prepare_and_start_instructor(default_opts)
+        instructor = prepare_and_start_instructor(final_opts)
 
         # get stuff that we need from the instructor
         self.model = instructor.own_model
@@ -157,77 +168,3 @@ def parse_arguments(override_args=False):
     opt = parser.parse_args(args=own_args)
 
     return opt
-
-
-if __name__ == "__main__":
-    """
-    these are just some tests to understand how to invoke the classifier
-    TODO here we should have an argparser and functionality so that the tool can also
-    be invoked from cli
-    """
-    opt = parse_arguments(override_args=False)
-
-    tsc = TargetSentimentClassifier(opt)
-    # print(
-    #     tsc.infer(
-    #         text_left="Mr. Smith said that ",
-    #         target_mention="John",
-    #         text_right=" was a liar.",
-    #     )[0]
-    # )
-    print(
-        tsc.infer(
-            text_left="Whatever you think of ",
-            target_mention="President Trump",
-            text_right=", you have to admit that he’s an astute reader of politics.",
-        )[0]
-    )
-    # print(
-    #     tsc.infer(
-    #         text="A former employee of the Senate intelligence committee, James A. "
-    #              "Wolfe, has been arrested on charges of lying to the FBI about "
-    #              "contacts with multiple reporters and appeared in federal court "
-    #              "Friday in Baltimore.",
-    #         target_mention_from=56,
-    #         target_mention_to=70,
-    #     )[0]
-    #
-
-    # with jsonlines.open("experiments/test.jsonl", "r",) as reader:
-    #     lines = [line for line in reader]
-    #     # lines = lines[:2]
-    #     classifications = []
-    #     for line in tqdm(lines):
-    #         sentence_normalized = line["sentence_normalized"]
-    #         primary_gid = line["primary_gid"]
-    #         for target in line["targets"]:
-    #             classification = tsc.infer(
-    #                 text=sentence_normalized,
-    #                 target_mention_from=target["from"],
-    #                 target_mention_to=target["to"],
-    #             )
-    #             result = {
-    #                 "primary_gid": primary_gid,
-    #                 "sentence": sentence_normalized,
-    #                 "target": target["mention"],
-    #                 "from": target["from"],
-    #                 "to": target["to"],
-    #                 "positive": tsc.get_info_for_label(classification, "positive")[
-    #                     "class_prob"
-    #                 ],
-    #                 "neutral": tsc.get_info_for_label(classification, "neutral")[
-    #                     "class_prob"
-    #                 ],
-    #                 "negative": tsc.get_info_for_label(classification, "negative")[
-    #                     "class_prob"
-    #                 ],
-    #                 "y_pred": classification[0]["class_label"],
-    #                 "y_true": SentimentClasses.polarity2label(target["polarity"]),
-    #                 "is_correct": classification[0]["class_label"]
-    #                 == SentimentClasses.polarity2label(target["polarity"]),
-    #             }
-    #             classifications.append(result)
-    #     import pandas as pd
-    #
-    #     df = pd.DataFrame(classifications)
-    #     df.to_excel("results.xlsx")
