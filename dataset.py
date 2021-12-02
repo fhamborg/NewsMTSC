@@ -261,7 +261,7 @@ class FXEasyTokenizer:
                 # make sure there is no overlap
                 if type(tokenizer) == RobertaTokenizer:
                     if sum(mapping * target_mask) > 0:
-                        logger.warning(
+                        logger.debug(
                             "overlap when mapping tokens to wordpiece (allow overwriting because "
                             "Roberta is used)"
                         )

@@ -1268,7 +1268,7 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     parser.add_argument(
         "--knowledgesources",
         nargs="+",
-        default=["mpqa_subjectivity", "nrc_emotions", "liwc"],
+        default=["nrc_emotions", "mpqa_subjectivity", "bingliu_opinion"],
     )
     parser.add_argument(
         "--is_use_natural_target_phrase_for_spc",
