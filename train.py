@@ -169,6 +169,7 @@ class Instructor:
             self.opt.single_targets,
             coref_mode,
             self.opt.devmode,
+            self.opt.ignore_parsing_errors,
         )
 
     def load_datasets(self):
@@ -1282,6 +1283,9 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     parser.add_argument("--coref_mode_in_training", type=str, default="ignore")
     parser.add_argument(
         "--logging", type=str, default="INFO",
+    )
+    parser.add_argument(
+        "--ignore_parsing_errors", type=str2bool, nargs="?", const=True, default=False
     )
 
     # if own_args == None -> parse_args will use sys.argv

@@ -977,6 +977,7 @@ class FXDataset(Dataset):
         single_targets: bool,
         coref_mode: str,
         devmode=False,
+        ignore_parsing_errors=False,
     ):
         self.class_label2class_number = named_polarity_to_class_number
         self.class_number2class_label = class_number_to_named_polarity
@@ -1021,7 +1022,9 @@ class FXDataset(Dataset):
             for task in tasks:
                 # create model items from this jsonl row (in case of single_targets
                 # enabled, a row with k targets will return k model items)
-                model_items = self.task_to_dataset_item(task, coref_mode)
+                model_items = self.task_to_dataset_item(
+                    task, coref_mode, ignore_parsing_errors
+                )
                 for converted_item, count_labels in model_items:
                     if converted_item is None:
                         # this will happen if an example has 0 targets -> ignore
@@ -1042,20 +1045,32 @@ class FXDataset(Dataset):
         return text.replace("\xa0", " ").replace("��", "  ")
 
     def __create_target_text_components(
-        self, target_start_char, target_end_char, text, check_mention
+        self,
+        target_start_char,
+        target_end_char,
+        text,
+        check_mention,
+        ignore_parsing_errors,
     ):
         target_check_mention = text[target_start_char:target_end_char]
         text_left = text[:target_start_char]
         text_right = text[target_end_char:]
         # perform target mention check
-        assert (
-            check_mention == target_check_mention
-        ), f"indexes do not match: '{check_mention}' vs '{target_check_mention}' " \
-           f"({text_left}; {text_right}; {target_start_char}; {target_end_char})"
+        if ignore_parsing_errors:
+            if check_mention != target_check_mention:
+                logger.warning(
+                    f"indexes do not match: '{check_mention}' vs '{target_check_mention}' "
+                    f"({text_left}; {text_right}; {target_start_char}; {target_end_char})"
+                )
+        else:
+            assert check_mention == target_check_mention, (
+                f"indexes do not match: '{check_mention}' vs '{target_check_mention}' "
+                f"({text_left}; {text_right}; {target_start_char}; {target_end_char})"
+            )
 
         return text_left, text_right
 
-    def __parse_dataset_row(self, task):
+    def __parse_dataset_row(self, task, ignore_parsing_errors):
         if self.data_format == "newsmtsc":
             _text = task["sentence_normalized"]
             primary_mtsc_gid = task["primary_gid"]
@@ -1081,7 +1096,11 @@ class FXDataset(Dataset):
                 target_polarity = target["polarity"]
 
                 text_left, text_right = self.__create_target_text_components(
-                    target_start_char, target_end_char, _text, target_mention
+                    target_start_char,
+                    target_end_char,
+                    _text,
+                    target_mention,
+                    ignore_parsing_errors,
                 )
 
                 # add target-specific text_left and text_right
@@ -1378,7 +1397,7 @@ class FXDataset(Dataset):
         mention_polarity = target["polarity"]
 
         text_left, text_right = self.__create_target_text_components(
-            mention_from, mention_to, text, mention_text
+            mention_from, mention_to, text, mention_text, False
         )
 
         return {
@@ -1407,9 +1426,11 @@ class FXDataset(Dataset):
 
         return expanded_targets
 
-    def task_to_dataset_item(self, task, coref_mode: str):
+    def task_to_dataset_item(self, task, coref_mode: str, ignore_parsing_errors):
         # parse current dataset row (=task)
-        example_id, text, targets = self.__parse_dataset_row(task)
+        example_id, text, targets = self.__parse_dataset_row(
+            task, ignore_parsing_errors
+        )
 
         # if the coref mode (only during training though) is additional_examples, repeat them here
         if coref_mode == "additional_examples":
