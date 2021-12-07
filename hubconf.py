@@ -1,1 +1,1 @@
-from DeepNewsSentiment.models.singletarget.grutscsingle import GRUTSCSingle
+from NewsSentiment.models.singletarget.grutscsingle import GRUTSCSingle

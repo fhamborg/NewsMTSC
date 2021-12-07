@@ -33,28 +33,32 @@ NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 We currently still require python 3.8. If your package manager offers it, just install it from there. Otherwise, you can
 install it e.g. via coda:
 
-**1. Setup the conda environment:**
+**1. Setup the environment:**
+
+Either via virtualenv:
+```bash
+virtualenv --ppython3.7 --setuptools 45 venv
+source venv/bin/activate
+```
+or via conda:
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc
 ```
 
-**2. Install DeepNewsAnalysis:**
+**2. Install NewsSentiment:**
 ```bash
-pip install DeepNewsSentiment        # without cuda support
-pip install DeepNewsSentiment[cuda]  # with cuda support
+pip install NewsSentiment        # without cuda support
+pip install NewsSentiment[cuda]  # with cuda support
 ```
 
-**3. Download models (our pretrained state_dict and spacys en_core_web_sm):**
-
-```
-python -m spacy download en_core_web_sm
-python -m DeepNewsSentiment download
-```
-
-You're all set now :-)
+You're all set now, all required models will automatically download on-demand :-)
 
 # Target-dependent Sentiment Classification
+
+_Please note that running infer.py (or its first import) and the first run of TargetSentimentClassifier can take some time depending on your internet connection speed._
+_NewsSentiment downloads and loads the required models during this time._
+
 Target-dependent sentiment classification works out-of-the-box. Have a look at infer.py or give it a try:
 ```
 python infer.py
