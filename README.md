@@ -37,7 +37,7 @@ install it e.g. via coda:
 
 Either via virtualenv:
 ```bash
-virtualenv --ppython3.7 --setuptools 45 venv
+virtualenv -ppython3.7 --setuptools 45 venv
 source venv/bin/activate
 ```
 or via conda:
