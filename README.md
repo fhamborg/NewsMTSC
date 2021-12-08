@@ -25,55 +25,41 @@ an issue](https://github.com/fhamborg/NewsMTSC/issues).
 # Installation
 It's super easy, we promise!
 
-To keep things easy, we use Anaconda for setting up requirements. If you do not have
-it yet, follow Anaconda's
-[installation instructions](https://docs.anaconda.com/anaconda/install/).
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
-**1. Setup the conda environment:**
+**1. Setup the environment:**
+
+This step is optional if you have Python 3.7 installed already (`python --version`). If you don't have Pthon 3.7, we recommend using Anaconda for setting up requirements. If you do not have it yet, follow Anaconda's
+[installation instructions](https://docs.anaconda.com/anaconda/install/). 
+
+To setup a Python 3.7 environment (in case you don't have one yet) you may use, for example:
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc
 ```
 
-**2. Clone the repository:**
+FYI, for users of virtualenv, the equivalent command would be:
 ```bash
-git clone git@github.com:fhamborg/NewsMTSC.git
-cd NewsMTSC
+virtualenv -ppython3.7 --setuptools 45 venv
+source venv/bin/activate
 ```
 
-**3. Install pytorch:**
-
-Choose either of the following. Either use this command if your GPU supports CUDA:
+**2. Install NewsSentiment:**
 ```bash
-conda install --yes "pytorch=1.7.1" torchvision cudatoolkit=10.1 -c pytorch
+pip3 install NewsSentiment        # without cuda support
+pip3 install NewsSentiment[cuda]  # with cuda support
 ```
 
-Or use this command if your GPU does not support CUDA, you don't know what CUDA is, or if the previous command gives you an error:
-```bash
-conda install --yes "pytorch=1.7.1" torchvision -c pytorch
-```
-
-**4. Install remaining packages:**
-```bash
-conda install --yes pandas tqdm scikit-learn
-conda install --yes -c conda-forge boto3 regex sacremoses jsonlines matplotlib tabulate imbalanced-learn "spacy>=2.1,<3"
-conda install --yes -c anaconda requests gensim openpyxl networkx
-pip install "transformers>=3.1.0,<4"
-python -m spacy download en_core_web_sm
-```
-
-**5. Download our model:**
-```bash
-python download.py
-```
-
-You're all set now :-)
+You're all set now, all required models will automatically download on-demand :-)
 
 # Target-dependent Sentiment Classification
+
+_Please note that running infer.py (or its first import) and the first run of TargetSentimentClassifier can take some time depending on your internet connection speed._
+_NewsSentiment downloads and loads the required models during this time._
+
 Target-dependent sentiment classification works out-of-the-box. Have a look at infer.py or give it a try:
 ```
-python infer.py
+python3.7 infer.py
 ```
 
 # Training
