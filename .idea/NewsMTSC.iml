@@ -3,7 +3,7 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/DeepNewsSentiment.egg-info" />
+      <excludeFolder url="file://$MODULE_DIR$/NewsSentiment.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (CompanySentimentNews)" jdkType="Python SDK" />

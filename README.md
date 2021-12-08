@@ -25,31 +25,29 @@ an issue](https://github.com/fhamborg/NewsMTSC/issues).
 # Installation
 It's super easy, we promise!
 
-To keep things easy, we use Anaconda for setting up requirements. If you do not have
-it yet, follow Anaconda's
-[installation instructions](https://docs.anaconda.com/anaconda/install/).
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
-
-We currently still require python 3.8. If your package manager offers it, just install it from there. Otherwise, you can
-install it e.g. via coda:
 
 **1. Setup the environment:**
 
-Either via virtualenv:
-```bash
-virtualenv -ppython3.7 --setuptools 45 venv
-source venv/bin/activate
-```
-or via conda:
+This step is optional if you have Python 3.7 installed already (`python --version`). If you don't have Pthon 3.7, we recommend using Anaconda for setting up requirements. If you do not have it yet, follow Anaconda's
+[installation instructions](https://docs.anaconda.com/anaconda/install/). 
+
+To setup a Python 3.7 environment (in case you don't have one yet) you may use, for example:
 ```bash
 conda create --yes -n newsmtsc python=3.7
 conda activate newsmtsc
 ```
 
+FYI, for users of virtualenv, the equivalent command would be:
+```bash
+virtualenv -ppython3.7 --setuptools 45 venv
+source venv/bin/activate
+```
+
 **2. Install NewsSentiment:**
 ```bash
-pip install NewsSentiment        # without cuda support
-pip install NewsSentiment[cuda]  # with cuda support
+pip3 install NewsSentiment        # without cuda support
+pip3 install NewsSentiment[cuda]  # with cuda support
 ```
 
 You're all set now, all required models will automatically download on-demand :-)
@@ -61,7 +59,7 @@ _NewsSentiment downloads and loads the required models during this time._
 
 Target-dependent sentiment classification works out-of-the-box. Have a look at infer.py or give it a try:
 ```
-python infer.py
+python3.7 infer.py
 ```
 
 # Training
