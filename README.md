@@ -9,11 +9,6 @@ sentiment classification in news articles reporting on policy issues. Additional
 the repository contains our **model** named GRU-TSC, which achieves state-of-the-art
 TSC classification performance on NewsMTSC. Check it out - it **works out of the box** :-)
 
-This readme consists of the following parts:
-* [Installation of GRU-TSC](#installation)
-* [How to use our model](#target-dependent-sentiment-classification)
-* [How to train our model (or yours)](#training)
-
 **Quick start**
 
 * **I want to classify sentiment on news articles**: check out our easy-to-use, high-quality sentiment classifier on [PyPI](https://pypi.org/project/NewsSentiment/)
