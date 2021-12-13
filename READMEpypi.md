@@ -8,7 +8,7 @@ Only for this target, the sentiment is then predicted. This is more reliable in 
 cases, as demonstrated by the following simplistic example: "I like Bert, but I hate Robert."
 
 We designed NewsSentiment to serve as an easy-to-use wrapper around the sophisticated
-GRU-TSC model, which was trained on the NEWSMTSC dataset consisting of more than 10k 
+GRU-TSC model, which was trained on the NewsMTSC dataset consisting of more than 10k 
 labeled sentences sampled from political news articles. More information on the dataset 
 and the model can be found [here](https://aclanthology.org/2021.eacl-main.142.pdf). The
 dataset, the model, and its source code can be viewed in our [GitHub repository](https://github.com/fhamborg/NewsMTSC).
@@ -37,8 +37,11 @@ NewsSentiment will be much faster.
 from NewsSentiment import TargetSentimentClassifier
 tsc = TargetSentimentClassifier()
 
-sentiment = tsc.infer_from_text("I like" ,"Peter", ".")
-print(sentiment)
+sentiment = tsc.infer_from_text("I like " ,"Peter", " but I don't like Robert.")
+print(sentiment[0])
+
+sentiment = tsc.infer_from_text("" ,"Mark Meadows", "'s coverup of Trump’s coup attempt is falling apart.")
+print(sentiment[0])
 ```
 
 # How to cite
