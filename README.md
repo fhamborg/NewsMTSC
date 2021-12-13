@@ -14,13 +14,12 @@ This readme consists of the following parts:
 * [How to use our model](#target-dependent-sentiment-classification)
 * [How to train our model (or yours)](#training)
 
-If you are only looking for the dataset, you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip)
-or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset).
+**Quick start**
 
-To make the model available also to users without programming skills,
-we aimed to make the installation and using the model as easy as possible. If you face
-any issue with using the model or notice an issue in our dataset, you are more than welcome to [open
-an issue](https://github.com/fhamborg/NewsMTSC/issues).
+* **I want to classify sentiment on news articles**: check out our easy-to-use, high-quality sentiment classifier on [PyPI](https://pypi.org/project/NewsSentiment/)
+* **I need the dataset**: you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip) or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset).
+* **I want to train my own models**: read the remainder of this file.
+
 
 # Installation
 It's super easy, we promise!
@@ -46,28 +45,15 @@ source venv/bin/activate
 
 **2. Install NewsSentiment:**
 ```bash
-pip3 install NewsSentiment        # without cuda support
-pip3 install NewsSentiment[cuda]  # with cuda support
+git clone git@github.com:fhamborg/NewsMTSC.git
 ```
 
-You're all set now, all required models will automatically download on-demand :-)
+Note that if you only want to classify sentiment using our model, we recommend that you use our PyPI package [NewsSentiment](https://pypi.org/project/NewsSentiment/). Getting it is as simple as `pip install NewsSentiment` and using it is four lines of code :-)
 
-# Target-dependent Sentiment Classification
-
-_Please note that running infer.py (or its first import) and the first run of TargetSentimentClassifier can take some time depending on your internet connection speed._
-_NewsSentiment downloads and loads the required models during this time._
-
-Target-dependent sentiment classification works out-of-the-box. Have a look at infer.py or give it a try:
-```
-python3.7 infer.py
-```
 
 # Training
 If you want to train one of our models or your own model, please clone the repository first.
 
-```
-git clone git@github.com:fhamborg/NewsMTSC.git
-```
 
 There are two entry points to the system. `train.py` is used to train and evaluate a specific model on a specific dataset using
 specific hyperparameters. We call a single run an _experiment_. `controller.py` is used to run multiple experiments
