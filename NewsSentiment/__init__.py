@@ -1,0 +1,1 @@
+from NewsSentiment.infer import TargetSentimentClassifier

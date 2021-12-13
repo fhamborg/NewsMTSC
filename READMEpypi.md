@@ -14,37 +14,24 @@ and the model can be found [here](https://aclanthology.org/2021.eacl-main.142.pd
 dataset, the model, and its source code can be viewed in our [GitHub repository](https://github.com/fhamborg/NewsMTSC).
 
 # Installation
-It's super easy, we promise!
+It's super easy, we promise! 
 
-NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
+You just need a Python 3.7 or Python 3.8 environment. See [here](pythoninfo.md) if you 
+don't have Python or a different version (run `python --version` in a terminal to see 
+your version). Then run:
 
-**1. Setup the environment:**
-
-This step is optional if you have Python 3.7 installed already (run `python --version` 
-in a terminal and check the version that is printed). If you don't have Python 3.7, we 
-recommend using Anaconda for setting up requirements because it is very easy (but any way
-of installing Python 3.7 is fine). If you do not have Anaconda yet, follow their
-[installation instructions](https://docs.anaconda.com/anaconda/install/). 
-
-After installing Anaconda, to setup a Python 3.7 environment (in case you don't have one
-yet) execute:
-```bash
-conda create --yes -n newsmtsc python=3.7
-conda activate newsmtsc
-```
-
-**2. Install NewsSentiment:**
 ```bash
 pip3 install NewsSentiment        # without cuda support (choose this if you don't know what cuda is)
 pip3 install NewsSentiment[cuda]  # with cuda support
 ```
 
-You're all set now, all required models will automatically download on-demand :-) 
-
-Note that using NewsSentiment the first time may take a few minutes before the model is fully
-download. This is a one-time process and future use of NewsSentiment will be much faster.
+You're all set now, all required models will automatically download on-demand :-)
 
 # Target-dependent Sentiment Classification
+
+Note that using NewsSentiment the first time may take a few minutes because it needs
+to download the fine-tuned language model. This is a one-time process, and future use of
+NewsSentiment will be much faster.
 
 ```python
 from NewsSentiment import TargetSentimentClassifier
