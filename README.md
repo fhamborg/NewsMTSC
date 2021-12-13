@@ -63,6 +63,12 @@ python3.7 infer.py
 ```
 
 # Training
+If you want to train one of our models or your own model, please clone the repository first.
+
+```
+git clone git@github.com:fhamborg/NewsMTSC.git
+```
+
 There are two entry points to the system. `train.py` is used to train and evaluate a specific model on a specific dataset using
 specific hyperparameters. We call a single run an _experiment_. `controller.py` is used to run multiple experiments
 automatically. This is for example useful for model selection and evaluating hundreds or thousands of combinations of
