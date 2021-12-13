@@ -11,7 +11,7 @@ TSC classification performance on NewsMTSC. Check it out - it **works out of the
 
 **Quick start**
 
-* **I want to classify sentiment on news articles**: check out our easy-to-use, high-quality sentiment classifier on [PyPI](https://pypi.org/project/NewsSentiment/)
+* **I want to classify sentiment**: check out our easy-to-use, high-quality sentiment classifier on [PyPI](https://pypi.org/project/NewsSentiment/)
 * **I need the dataset**: you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip) or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset).
 * **I want to train my own models**: read the remainder of this file.
 
