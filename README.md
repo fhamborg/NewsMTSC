@@ -17,7 +17,7 @@ TSC classification performance on NewsMTSC. Check it out - it **works out of the
 
 
 # Installation
-It's super easy, we promise!
+It's super easy, we promise! Note that following these instructions is only necessary if you're planning to train a model using our tool. If you only want to predict the sentiment of sentences, please use our [Python package](https://pypi.org/project/NewsSentiment/), which is even easier to install and use :-)
 
 NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
