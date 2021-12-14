@@ -23,7 +23,7 @@ NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
 **1. Setup the environment:**
 
-This step is optional if you have Python 3.7 installed already (`python --version`). If you don't have Pthon 3.7, we recommend using Anaconda for setting up requirements. If you do not have it yet, follow Anaconda's
+This step is optional if you have Python 3.7 installed already (`python --version`). If you don't have Python 3.7, we recommend using Anaconda for setting up requirements. If you do not have it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
 
 To setup a Python 3.7 environment (in case you don't have one yet) you may use, for example:
