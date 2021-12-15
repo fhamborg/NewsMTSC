@@ -31,7 +31,9 @@ from NewsSentiment.download import Download
 from NewsSentiment.earlystopping import EarlyStopping
 from NewsSentiment.evaluator import Evaluator
 from NewsSentiment.fxlogger import get_logger
-from NewsSentiment.knowledge.bingliuopinion.bingliuopinion import get_num_bingliu_polarities
+from NewsSentiment.knowledge.bingliuopinion.bingliuopinion import (
+    get_num_bingliu_polarities,
+)
 from NewsSentiment.knowledge.mpqasubjectivity.mpqasubjectivity import (
     get_num_mpqa_subjectivity_polarities,
 )
@@ -44,9 +46,15 @@ from NewsSentiment.models.FXEnsemble import FXEnsemble
 from NewsSentiment.models.multitargets.contrasting import Contrasting
 from NewsSentiment.models.multitargets.random_multi import RandomMulti
 from NewsSentiment.models.multitargets.seq2seq import SeqTwoSeq
-from NewsSentiment.models.multitargets.seq2seq_without_targetmask import SeqTwoSeqWithoutTargetMask
-from NewsSentiment.models.multitargets.tdbertlikemultitarget import TDBertLikeMultiTarget
-from NewsSentiment.models.multitargets.tdbertlikemultitarget_dense import TDBertLikeMultiTargetDense
+from NewsSentiment.models.multitargets.seq2seq_without_targetmask import (
+    SeqTwoSeqWithoutTargetMask,
+)
+from NewsSentiment.models.multitargets.tdbertlikemultitarget import (
+    TDBertLikeMultiTarget,
+)
+from NewsSentiment.models.multitargets.tdbertlikemultitarget_dense import (
+    TDBertLikeMultiTargetDense,
+)
 from NewsSentiment.models.singletarget.aen import AEN_Base
 from NewsSentiment.models.singletarget.grutscsingle import GRUTSCSingle
 from NewsSentiment.models.singletarget.lcf import LCF_BERT
@@ -131,15 +139,21 @@ class Instructor:
         if self.opt.training_mode:
             self.load_datasets()
 
+        # get model config (currently supports only a single language model)
+        assert len(self.transformer_models) == 1
+        transformer_model_config = list(self.transformer_models.values())[0].config
+
         # setup own model
-        own_model_object = own_model_class(self.transformer_models, self.opt)
+        own_model_object = own_model_class(
+            transformer_models=self.transformer_models,
+            opt=self.opt,
+            config=transformer_model_config,
+        )
         own_model_object = own_model_object.to(self.opt.device)
         if self.opt.state_dict:
             Download.download(own_model_class)
             logger.info("loading weights from %s...", self.opt.state_dict)
-            state_dict = torch.load(
-                self.opt.state_dict, map_location=self.opt.device
-            )
+            state_dict = torch.load(self.opt.state_dict, map_location=self.opt.device)
             own_model_object.load_state_dict(state_dict)
             logger.info("done")
         self.own_model = own_model_object
@@ -1299,6 +1313,8 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     # set logging
     if overwrite_logging_level:
         logger.setLevel(overwrite_logging_level)
+    else:
+        logger.setLevel(opt.logging)
 
     return opt
 

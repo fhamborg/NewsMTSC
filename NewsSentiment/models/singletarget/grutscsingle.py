@@ -3,14 +3,21 @@ from typing import Dict
 
 import torch
 import torch.nn as nn
+from transformers import PretrainedConfig
 
 from NewsSentiment.consts import *
 from NewsSentiment.dataset import FXDataset, FXEasyTokenizer
-from NewsSentiment.models.FXBaseModel import FXBaseModel, provide_pretrained, default_pretrained
+from NewsSentiment.models.FXBaseModel import (
+    FXBaseModel,
+    provide_pretrained,
+    default_pretrained,
+)
 
 
 @default_pretrained("v1.0.0")
-@provide_pretrained("v1.0.0", "https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc")
+@provide_pretrained(
+    "v1.0.0", "https://github.com/fhamborg/NewsMTSC/releases/download/v1.0.0/grutsc"
+)
 class GRUTSCSingle(FXBaseModel):
     """
     Inspired from https://arxiv.org/pdf/2006.00052.pdf
@@ -50,8 +57,10 @@ class GRUTSCSingle(FXBaseModel):
             ),
         ]
 
-    def __init__(self, transformer_models: Dict, opt: Namespace):
-        super().__init__()
+    def __init__(
+        self, transformer_models: Dict, opt: Namespace, config: PretrainedConfig
+    ):
+        super().__init__(config)
         self.language_model = transformer_models[get_default_lm()]
         self.ks_embeddings_dense = nn.Linear(
             FXEasyTokenizer.NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES,
@@ -79,7 +88,6 @@ class GRUTSCSingle(FXBaseModel):
             self.language_model.config.hidden_size * 3 * num_input_embeddings * 2,
             opt.polarities_dim,
         )
-        self.device = opt.device
 
     def forward(self, inputs, is_return_ensemble_values: bool = False):
         # get inputs

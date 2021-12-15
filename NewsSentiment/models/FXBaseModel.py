@@ -5,15 +5,21 @@ import torch.nn as nn
 
 from abc import abstractmethod
 
-from transformers import XLNetModel, AlbertModel, BertModel, RobertaModel
+from transformers import (
+    XLNetModel,
+    AlbertModel,
+    BertModel,
+    RobertaModel,
+    PreTrainedModel,
+)
 from functools import wraps
 
 from NewsSentiment.download import Download
 
 
-class FXBaseModel(nn.Module):
-    def __init__(self):
-        super().__init__()
+class FXBaseModel(PreTrainedModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @staticmethod
     @abstractmethod
@@ -29,8 +35,7 @@ class FXBaseModel(nn.Module):
         type_lm = type(lm)
         if type_lm == XLNetModel:
             last_hidden_state, mems, all_hidden_states = lm(
-                input_ids=input_ids,
-                token_type_ids=token_type_ids,
+                input_ids=input_ids, token_type_ids=token_type_ids,
             )
         elif type_lm in [AlbertModel, BertModel, RobertaModel]:
             if token_type_ids is None:
@@ -39,8 +44,7 @@ class FXBaseModel(nn.Module):
                 )
             else:
                 last_hidden_state, pooler_output, hidden_states = lm(
-                    input_ids=input_ids,
-                    token_type_ids=token_type_ids
+                    input_ids=input_ids, token_type_ids=token_type_ids
                 )
         else:
             raise NotImplementedError
@@ -56,6 +60,7 @@ def provide_pretrained(version, pretrained_url):
         class Example(nn.Module):
             pass
     """
+
     def decorator(model_class):
         # The actual decorator to use before the class
         wraps(model_class)
@@ -64,6 +69,7 @@ def provide_pretrained(version, pretrained_url):
         wrapper._provide_pretrained_versions[version] = pretrained_url
 
         return wrapper
+
     return decorator
 
 
@@ -78,6 +84,7 @@ def default_pretrained(version):
         class Example(nn.Module):
             pass
     """
+
     def decorator(model_class):
         # The actual decorator to use before the class
         wraps(model_class)
@@ -86,6 +93,7 @@ def default_pretrained(version):
         wrapper._provide_pretrained_default = version
 
         return wrapper
+
     return decorator
 
 
@@ -99,7 +107,9 @@ def model_includes_pretrained(model):
     Returns:
         True if it includes the functionality.
     """
-    return hasattr(model, 'has_pretrained_state_dict') and hasattr(model, 'get_pretrained_state_dict')
+    return hasattr(model, "has_pretrained_state_dict") and hasattr(
+        model, "get_pretrained_state_dict"
+    )
 
 
 __pretrained_wrapper_classes = set()
@@ -122,13 +132,15 @@ def __get_pretrained_wrapper_class(base_class):
             return version in cls._provide_pretrained_versions
 
         @classmethod
-        def get_pretrained_state_dict(cls, version=None, download_if_not_exists=True, **kwargs):
+        def get_pretrained_state_dict(
+            cls, version=None, download_if_not_exists=True, **kwargs
+        ):
             path = Download.model_path(cls, version)
             if os.path.isfile(path):
                 if download_if_not_exists:
                     Download.download(cls, version, False)
                 else:
-                    raise FileNotFoundError('State dict not found')
+                    raise FileNotFoundError("State dict not found")
             return cls.load_state_dict(path, **kwargs)
 
         @classmethod
@@ -137,7 +149,9 @@ def __get_pretrained_wrapper_class(base_class):
 
         @classmethod
         def get_pretrained_source(cls, version=None):
-            return cls._provide_pretrained_versions[version or cls._provide_pretrained_default]
+            return cls._provide_pretrained_versions[
+                version or cls._provide_pretrained_default
+            ]
 
         @classmethod
         def get_pretrained_default_version(cls):
