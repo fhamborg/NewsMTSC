@@ -22,6 +22,7 @@ from transformers import (
     XLNetTokenizer,
     AlbertTokenizer,
     AlbertModel,
+    PreTrainedTokenizer,
 )
 
 from NewsSentiment.SentimentClasses import SentimentClasses
@@ -142,6 +143,8 @@ class Instructor:
         # get model config (currently supports only a single language model)
         assert len(self.transformer_models) == 1
         transformer_model_config = list(self.transformer_models.values())[0].config
+        assert len(self.transformer_tokenizers) == 1
+        transformer_tokenizer = list(self.transformer_tokenizers.values())[0]
 
         # setup own model
         own_model_object = own_model_class(
@@ -158,6 +161,11 @@ class Instructor:
             logger.info("done")
         self.own_model = own_model_object
         logger.info("initialized own model")
+
+        if self.opt.export_finetuned_model:
+            self.save_pretrained_model(
+                own_model_object, transformer_tokenizer, self.opt.export_finetuned_model
+            )
 
         self.evaluator = Evaluator(
             SentimentClasses.get_sorted_expected_label_values(),
@@ -527,7 +535,32 @@ class Instructor:
 
         return selected_model_path, selected_model_filename, selected_model_dev_stats
 
+    def save_pretrained_model(
+        self,
+        pretrained_model: PreTrainedModel,
+        tokenizer: PreTrainedTokenizer,
+        save_directory: str,
+    ):
+        """
+        Used to create a model that can be uploaded to huggingface hub
+        :param finetuned_pretrained_model: Should typically be finetuned already
+        :param save_directory:
+        :return:
+        """
+        pretrained_model.save_pretrained(save_directory)
+        tokenizer.save_pretrained(save_directory)
+        tokenizer.save_vocabulary(save_directory)
+
+        logger.info("model exported to: %s", save_directory)
+
     def _save_model_state_dict(self, early_stopping, epoch: int, dev_stats):
+        """
+        Used during evaluation to store the best performing model in pytorch format
+        :param early_stopping:
+        :param epoch:
+        :param dev_stats:
+        :return:
+        """
         dev_snem = dev_stats[self.opt.snem]
 
         has_stored = False
@@ -784,7 +817,6 @@ class Instructor:
             logger.info("initialize optimizer")
             optimizer = None
         else:
-            logger.error("check if the correct parameters are retrieved here!")
             _params = filter(lambda p: p.requires_grad, self.own_model.parameters())
             optimizer = self.opt.optimizer(
                 _params, lr=self.opt.learning_rate, weight_decay=self.opt.l2reg
@@ -1296,6 +1328,7 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     parser.add_argument(
         "--ignore_parsing_errors", type=str2bool, nargs="?", const=True, default=False
     )
+    parser.add_argument("--export_finetuned_model", type=str, default=None)
 
     # if own_args == None -> parse_args will use sys.argv
     # if own_args == [] -> parse_args will use this empty list instead
