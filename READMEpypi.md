@@ -16,7 +16,7 @@ dataset, the model, and its source code can be viewed in our [GitHub repository]
 # Installation
 It's super easy, we promise! 
 
-You just need a Python 3.7 or Python 3.8 environment. See [here](pythoninfo.md) if you 
+You just need a Python 3.7 or Python 3.8 environment. See [here](https://raw.githubusercontent.com/fhamborg/NewsMTSC/main/pythoninfo.md) if you 
 don't have Python or a different version (run `python --version` in a terminal to see 
 your version). Then run:
 
