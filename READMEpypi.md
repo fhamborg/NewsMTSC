@@ -25,12 +25,12 @@ pip3 install NewsSentiment        # without cuda support (choose this if you don
 pip3 install NewsSentiment[cuda]  # with cuda support
 ```
 
-You're all set now, all required models will automatically download on-demand :-)
+You're all set now :-)
 
 # Target-dependent Sentiment Classification
 
-Note that using NewsSentiment the first time may take a few minutes because it needs
-to download the fine-tuned language model. This is a one-time process, and future use of
+Note that using NewsSentiment the first time will take *a few minutes* because it needs
+to download the fine-tuned language model. Please do not abort this initial model download. This is a one-time process, and future use of
 NewsSentiment will be much faster.
 
 ```python
