@@ -97,7 +97,17 @@ class TargetSentimentClassifier:
         or end with a space, respectively. Alternatively, the target can be selected via
         target_mention_from and target_mention_to in text.
         """
-        assert not text_left and text or text_left and not text
+        is_index_based = (
+            text is not None
+            and target_mention_from is not None
+            and target_mention_to is not None
+        )
+        is_component_based = (
+            text_left is not None
+            and target_mention is not None
+            and text_right is not None
+        )
+        assert is_index_based != is_component_based
 
         if text:
             text_left = text[:target_mention_from]
