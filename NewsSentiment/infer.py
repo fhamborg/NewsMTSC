@@ -28,7 +28,7 @@ class TargetSentimentClassifier:
 
         # get the default parameters from train.py
         final_opts = parse_arguments_from_train(
-            override_args=False, overwrite_logging_level=logging_level
+            override_args=True, overwrite_logging_level=logging_level
         )
         # if no arguments have been passed, get the defaults of infer.py (and since
         # override_args=True, not the arguments passed by the console (in args) will be
@@ -193,3 +193,7 @@ def parse_arguments(override_args=False):
     opt = parser.parse_args(args=own_args)
 
     return opt
+
+
+if __name__ == '__main__':
+    TargetSentimentClassifier()
