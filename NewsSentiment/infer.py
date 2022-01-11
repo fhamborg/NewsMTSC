@@ -193,7 +193,3 @@ def parse_arguments(override_args=False):
     opt = parser.parse_args(args=own_args)
 
     return opt
-
-
-if __name__ == '__main__':
-    TargetSentimentClassifier()
