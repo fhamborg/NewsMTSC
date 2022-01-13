@@ -26,6 +26,9 @@ class TargetSentimentClassifier:
     ):
         self.logger = get_logger()
 
+        # reset NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES
+        FXEasyTokenizer.NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES = 0
+
         # get the default parameters from train.py
         final_opts = parse_arguments_from_train(
             override_args=True, overwrite_logging_level=logging_level
