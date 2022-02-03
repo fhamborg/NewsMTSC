@@ -66,11 +66,11 @@ class GRUTSCSingle(FXBaseModel):
             FXEasyTokenizer.NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES,
             self.language_model.config.hidden_size,
         )
-        # if get_default_lm() == BERT_BASE_UNCASED:
-        #     self.is_use_targetmask = True
-        # else:
-        #     self.is_use_targetmask = False
-        self.is_use_targetmask = False
+        if get_default_lm() == BERT_BASE_UNCASED:
+            self.is_use_targetmask = True
+        else:
+            self.is_use_targetmask = False
+
         num_input_embeddings = 2
         if self.is_use_targetmask:
             num_input_embeddings = 3
