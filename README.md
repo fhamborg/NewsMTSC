@@ -38,10 +38,12 @@ virtualenv -ppython3.7 --setuptools 45 venv
 source venv/bin/activate
 ```
 
-**2. Install NewsSentiment:**
+**2. Setup NewsMTSC:**
 ```bash
 git clone git@github.com:fhamborg/NewsMTSC.git
 ```
+
+Afterward, for example, open the project in your IDE and follow the instruction described in the section "Training".
 
 Note that if you only want to classify sentiment using our model, we recommend that you use our PyPI package [NewsSentiment](https://pypi.org/project/NewsSentiment/). Getting it is as simple as `pip install NewsSentiment` and using it is four lines of code :-)
 
