@@ -35,7 +35,10 @@ from NewsSentiment.knowledge.nrcemolex.nrcemolex import (
     get_nrc_emotions_as_tensor,
     get_num_nrc_emotions,
 )
-from NewsSentiment.knowledge.zeros.zerosknowledge import get_num_zero_dimensions, get_zeros_as_tensor
+from NewsSentiment.knowledge.zeros.zerosknowledge import (
+    get_num_zero_dimensions,
+    get_zeros_as_tensor,
+)
 from NewsSentiment.models.FXBaseModel import FXBaseModel
 
 logger = get_logger()
@@ -44,66 +47,10 @@ try:
 except OSError:
     spacy.cli.download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
-# this is what we could run on spacy 2.2+
-# nlp_dep_parser_labels = list(nlp.parser.labels)
-# but since we're on spacy 2.1 (and need to be because of newsalyze-backend)
-# we have to use this workaround, see:
-# https://github.com/explosion/spaCy/discussions/5135
-nlp_dep_parser_labels = []
-for move in nlp.parser.move_names:
-    if "-" in move:
-        move = move.split("-")[1]
-        if "||" in move:
-            move = move.split("||")[1]
-        nlp_dep_parser_labels.append(move)
-# assert set(nlp_dep_parser_labels) == {
-#     "agent",
-#     "acl",
-#     "intj",
-#     "predet",
-#     "expl",
-#     "prt",
-#     "meta",
-#     "attr",
-#     "pcomp",
-#     "parataxis",
-#     "compound",
-#     "auxpass",
-#     "mark",
-#     "prep",
-#     "dative",
-#     "xcomp",
-#     "npadvmod",
-#     "advcl",
-#     "preconj",
-#     "pobj",
-#     "csubj",
-#     "dep",
-#     "punct",
-#     "case",
-#     "ROOT",
-#     "quantmod",
-#     "cc",
-#     "det",
-#     "subtok",
-#     "neg",
-#     "nmod",
-#     "amod",
-#     "advmod",
-#     "nsubjpass",
-#     "appos",
-#     "conj",
-#     "dobj",
-#     "acomp",
-#     "nsubj",
-#     "csubjpass",
-#     "nummod",
-#     "ccomp",
-#     "oprd",
-#     "poss",
-#     "relcl",
-#     "aux",
-# }
+
+# get list of parser's labels
+parser_index = nlp.pipe_names.index("parser")
+nlp_dep_parser_labels = list(nlp.pipeline[parser_index][1].labels)
 
 
 class RandomOversampler(torch.utils.data.sampler.Sampler):
