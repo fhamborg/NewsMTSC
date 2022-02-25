@@ -12,7 +12,7 @@ TSC classification performance on NewsMTSC. Check it out - it **works out of the
 **Quick start**
 
 * **I want to classify sentiment**: check out our easy-to-use, high-quality sentiment classifier on [PyPI](https://pypi.org/project/NewsSentiment/)
-* **I need the dataset**: you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip) or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset). We also offer NewsMTSC as a [dataset on Huggingface Hub](https://huggingface.co/datasets/fhamborg/news_sentiment_newsmtsc).
+* **I need the dataset**: you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip) or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset). We also offer NewsMTSC as a dataset on [Huggingface Hub](https://huggingface.co/datasets/fhamborg/news_sentiment_newsmtsc) and on [Kaggle](https://www.kaggle.com/fhamborg/news-articles-sentiment).
 * **I want to train my own models**: read the remainder of this file.
 
 
@@ -38,10 +38,12 @@ virtualenv -ppython3.7 --setuptools 45 venv
 source venv/bin/activate
 ```
 
-**2. Install NewsSentiment:**
+**2. Setup NewsMTSC:**
 ```bash
 git clone git@github.com:fhamborg/NewsMTSC.git
 ```
+
+Afterward, for example, open the project in your IDE and follow the instruction described in the section "Training".
 
 Note that if you only want to classify sentiment using our model, we recommend that you use our PyPI package [NewsSentiment](https://pypi.org/project/NewsSentiment/). Getting it is as simple as `pip install NewsSentiment` and using it is four lines of code :-)
 
