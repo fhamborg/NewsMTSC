@@ -963,7 +963,7 @@ class FXDataset(Dataset):
                 tasks.append(task)
 
         if devmode:
-            k = 4
+            k = 5
             logger.warning("DEV MODE IS ENABLED")
             logger.info("devmode=True: truncating dataset to {} lines".format(k))
             tasks = tasks[:k]

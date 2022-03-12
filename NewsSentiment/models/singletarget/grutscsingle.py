@@ -82,11 +82,15 @@ class GRUTSCSingle(FXBaseModel):
             batch_first=True,
         )
         self.dropout = nn.Dropout(opt.dropout)
+        num_output_dim = opt.polarities_dim
+        if opt.is_return_confidence:
+            num_output_dim += 1
+
         self.dense = nn.Linear(
             # 3 inputs (original last gru out, mean, max), 2 inputs to gru (bert and
             # knowledge embedding), 2 (because bidirectional gru)
             self.language_model.config.hidden_size * 3 * num_input_embeddings * 2,
-            opt.polarities_dim,
+            num_output_dim,
         )
 
     def forward(self, inputs, is_return_ensemble_values: bool = False):

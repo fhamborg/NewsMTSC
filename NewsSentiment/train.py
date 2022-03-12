@@ -42,6 +42,9 @@ from NewsSentiment.knowledge.nrcemolex.nrcemolex import get_num_nrc_emotions
 from NewsSentiment.knowledge.zeros.zerosknowledge import get_num_zero_dimensions
 from NewsSentiment.losses.crossentropycrossweight import CrossEntropyLoss_CrossWeight
 from NewsSentiment.losses.crossentropylosslsr import CrossEntropyLoss_LSR
+from NewsSentiment.losses.crossentropylosswithconfidence import (
+    CrossEntropyLossWithConfidence,
+)
 from NewsSentiment.losses.seq2seqloss import SequenceLoss
 from NewsSentiment.models.FXEnsemble import FXEnsemble
 from NewsSentiment.models.multitargets.contrasting import Contrasting
@@ -424,6 +427,8 @@ class Instructor:
                             cross_weight,
                             text_bert_indices_targets_mask,
                         )
+                    elif self.opt.is_return_confidence:
+                        loss = criterion(outputs, targets)
                     else:
                         loss = criterion(outputs, targets)
 
@@ -793,10 +798,16 @@ class Instructor:
             sampler_train = RandomOversampler(self.trainset, self.opt.seed)
 
         if self.opt.loss == "crossentropy":
-            criterion = nn.CrossEntropyLoss(
-                weight=class_weights,
-                ignore_index=SentimentClasses.FILLUP_POLARITY_VALUE,
-            )
+            if self.opt.is_return_confidence:
+                criterion = CrossEntropyLossWithConfidence(
+                    weight=class_weights,
+                    ignore_index=SentimentClasses.FILLUP_POLARITY_VALUE,
+                )
+            else:
+                criterion = nn.CrossEntropyLoss(
+                    weight=class_weights,
+                    ignore_index=SentimentClasses.FILLUP_POLARITY_VALUE,
+                )
         elif self.opt.loss == "crossentropy_lsr":
             criterion = CrossEntropyLoss_LSR(
                 self.opt.device, smoothing_value=0.2, weight=class_weights
@@ -1329,6 +1340,9 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
         "--ignore_parsing_errors", type=str2bool, nargs="?", const=True, default=False
     )
     parser.add_argument("--export_finetuned_model", type=str, default=None)
+    parser.add_argument(
+        "--is_return_confidence", type=str2bool, nargs="?", const=True, default=False
+    )
 
     # if own_args == None -> parse_args will use sys.argv
     # if own_args == [] -> parse_args will use this empty list instead
