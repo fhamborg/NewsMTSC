@@ -43,9 +43,13 @@ class FXBaseModel(PreTrainedModel):
                     input_ids=input_ids,
                 )
             else:
-                last_hidden_state, pooler_output, hidden_states = lm(
-                    input_ids=input_ids, token_type_ids=token_type_ids
-                )
+                # last_hidden_state, pooler_output, hidden_states = lm(
+                #    input_ids=input_ids, token_type_ids=token_type_ids
+                # )
+                model_results = lm(input_ids=input_ids, token_type_ids=token_type_ids)
+                last_hidden_state = model_results.last_hidden_state
+                pooler_output = model_results.pooler_output
+                hidden_states = model_results.hidden_states
         else:
             raise NotImplementedError
 

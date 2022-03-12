@@ -6,7 +6,8 @@ from typing import Dict
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers.modeling_bert import BertPooler, BertSelfAttention
+
+# from transformers.modeling_bert import BertPooler, BertSelfAttention
 
 from NewsSentiment.consts import *
 from NewsSentiment.dataset import FXDataset
@@ -41,7 +42,7 @@ class SelfAttention(nn.Module):
         super(SelfAttention, self).__init__()
         self.opt = opt
         self.config = config
-        self.SA = BertSelfAttention(config)
+        self.SA = None  # BertSelfAttention(config)
         self.tanh = torch.nn.Tanh()
 
     def forward(self, inputs):
@@ -100,7 +101,7 @@ class LCFST_BERT(FXBaseModel):
             bert.config.hidden_size,
         )
         self.linear_single = nn.Linear(bert.config.hidden_size, bert.config.hidden_size)
-        self.bert_pooler = BertPooler(bert.config)
+        self.bert_pooler = None  # BertPooler(bert.config)
 
         self.dense = nn.Linear(bert.config.hidden_size, self.opt.polarities_dim)
 
@@ -261,7 +262,9 @@ class LCFST_BERT(FXBaseModel):
         # other things that are later stacked (there, each weight scalar of the vector that is multiplied
         # with the bert output is between 0 and 1, whereas after softmax they all sum to 1)
         seqlen = text_target_bert_indices.shape[1]
-        dependency_weight_vector_normalized = dependency_weight_vector_normalized * seqlen
+        dependency_weight_vector_normalized = (
+            dependency_weight_vector_normalized * seqlen
+        )
 
         # we linearly normalize the dependency weight vector because its values will currently be just any float
         # we do this because the other (two) components that are concatenated later are either original bert's output
@@ -270,16 +273,18 @@ class LCFST_BERT(FXBaseModel):
         # for each batch item, it should be normalized independently of the other batch items so that each of scalar
         # in the batch item is between 0 and 1
         # perform sigmoid first to handle very large and very small values. after this values will be between 0 and 1
-        #dependency_weight_vector = self.sigmoid(dependency_weight_vector)
-        #dependency_weight_vector_min_batch_wise, _ = dependency_weight_vector.min(dim=1, keepdim=True)
-        #dependency_weight_vector_max_batch_wise, _ = dependency_weight_vector.max(dim=1, keepdim=True)
+        # dependency_weight_vector = self.sigmoid(dependency_weight_vector)
+        # dependency_weight_vector_min_batch_wise, _ = dependency_weight_vector.min(dim=1, keepdim=True)
+        # dependency_weight_vector_max_batch_wise, _ = dependency_weight_vector.max(dim=1, keepdim=True)
         # actual linear normalization
-        #dependency_weight_vector_normalized = dependency_weight_vector-dependency_weight_vector_min_batch_wise
-        #dependency_weight_vector_normalized = dependency_weight_vector_normalized / (
+        # dependency_weight_vector_normalized = dependency_weight_vector-dependency_weight_vector_min_batch_wise
+        # dependency_weight_vector_normalized = dependency_weight_vector_normalized / (
         #        dependency_weight_vector_max_batch_wise - dependency_weight_vector_min_batch_wise
-        #)
+        # )
         # repeat for scalar wise multiplication
-        dependency_weight_vector_normalized = dependency_weight_vector_normalized.repeat(1, 1, bert_local_out.shape[2])
+        dependency_weight_vector_normalized = dependency_weight_vector_normalized.repeat(
+            1, 1, bert_local_out.shape[2]
+        )
 
         # multiply with bert
         bert_local_out_weighted_dependency_tree = torch.mul(

@@ -6,7 +6,7 @@ from typing import Dict
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers.modeling_bert import BertPooler, BertSelfAttention
+# from transformers.modeling_bert import BertPooler, BertSelfAttention
 
 from NewsSentiment.consts import *
 from NewsSentiment.dataset import FXDataset
@@ -41,7 +41,7 @@ class SelfAttention(nn.Module):
         super(SelfAttention, self).__init__()
         self.opt = opt
         self.config = config
-        self.SA = BertSelfAttention(config)
+        self.SA = None # BertSelfAttention(config)
         self.tanh = torch.nn.Tanh()
 
     def forward(self, inputs):
@@ -95,7 +95,7 @@ class LCFS_BERT(FXBaseModel):
             bert.config.hidden_size,
         )
         self.linear_single = nn.Linear(bert.config.hidden_size, bert.config.hidden_size)
-        self.bert_pooler = BertPooler(bert.config)
+        self.bert_pooler = None # BertPooler(bert.config)
 
         self.dense = nn.Linear(bert.config.hidden_size, self.opt.polarities_dim)
 

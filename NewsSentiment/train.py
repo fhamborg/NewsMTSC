@@ -755,6 +755,10 @@ class Instructor:
         else:
             # softmax: get predictions from outputs
             # have to take the 3rd (dim=2) dimension
+            if self.opt.is_return_confidence:
+                # we have to remove the last class because this is the confidence and
+                # we do not want to evaluate on the confidence (at least not now)
+                t_outputs_all = t_outputs_all[:, :, :-1]
             y_pred = torch.argmax(t_outputs_all, dim=2).cpu()
 
         stats = self.evaluator.calc_statistics(y_true, y_pred)

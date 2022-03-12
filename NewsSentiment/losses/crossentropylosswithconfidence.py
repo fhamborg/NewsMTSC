@@ -14,7 +14,7 @@ class CrossEntropyLossWithConfidence(nn.Module):
     def forward(self, predictions: torch.Tensor, labels: torch.Tensor):
         # get the prediction components
         class_preds = predictions[:, 0:3, :]
-        confidence_preds = predictions[:, 3:4, :]
+        confidence_preds = predictions[:, 3:4, :].squeeze(dim=1)
 
         # calc the regular class-based loss
         class_loss = self.crossentropyloss(class_preds, labels)

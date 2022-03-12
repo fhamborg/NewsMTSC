@@ -7,7 +7,7 @@ from typing import Dict
 import numpy as np
 import torch
 import torch.nn as nn
-from transformers.modeling_bert import BertPooler, BertSelfAttention
+# from transformers.modeling_bert import BertPooler, BertSelfAttention
 
 from NewsSentiment.consts import *
 from NewsSentiment.dataset import FXDataset
@@ -88,7 +88,7 @@ class LCF_BERT2Dual(FXBaseModel):
         self.bert_SA = SelfAttention(bert.config, self.opt)
         self.linear2 = nn.Linear(bert.config.hidden_size * 2, bert.config.hidden_size)
         # self.linear3 = nn.Linear(bert.config.hidden_size * 3, bert.config.hidden_size)
-        self.bert_pooler = BertPooler(bert.config)
+        self.bert_pooler = None # BertPooler(bert.config)
         self.dense = nn.Linear(bert.config.hidden_size, self.opt.polarities_dim)
 
     def feature_dynamic_mask(self, text_local_indices, aspect_indices):
