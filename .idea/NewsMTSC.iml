@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/NewsSentiment.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (CompanySentimentNews)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.7 (newsmtsc)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

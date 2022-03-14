@@ -174,6 +174,7 @@ class Instructor:
             SentimentClasses.get_sorted_expected_label_values(),
             SentimentClasses.get_polarity_associations(),
             self.opt.snem,
+            self.opt.is_return_confidence,
         )
 
         self._print_args()
@@ -752,16 +753,18 @@ class Instructor:
             y_pred = self._get_classes_from_sequence_output(
                 t_outputs_all, t_text_bert_indices_targets_mask_all
             ).cpu()
+            t_outputs_confidence = None
         else:
             # softmax: get predictions from outputs
             # have to take the 3rd (dim=2) dimension
             if self.opt.is_return_confidence:
                 # we have to remove the last class because this is the confidence and
                 # we do not want to evaluate on the confidence (at least not now)
+                t_outputs_confidence = t_outputs_all.clone().cpu()[:, :, -1]
                 t_outputs_all = t_outputs_all[:, :, :-1]
             y_pred = torch.argmax(t_outputs_all, dim=2).cpu()
 
-        stats = self.evaluator.calc_statistics(y_true, y_pred)
+        stats = self.evaluator.calc_statistics(y_true, y_pred, t_outputs_confidence)
 
         if get_examples:
             self.evaluator.write_error_table(
