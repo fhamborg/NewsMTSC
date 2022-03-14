@@ -1286,7 +1286,7 @@ def parse_arguments(override_args=False, overwrite_logging_level=None):
     )
     parser.add_argument(
         "--experiment_path",
-        default="./experiments/default",
+        default="./NewsSentiment/experiments/default",
         type=str,
         help="if defined, all data will be read from / saved to a folder in the experiments folder",
     )
