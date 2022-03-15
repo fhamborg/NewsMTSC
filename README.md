@@ -9,7 +9,7 @@ sentiment classification in news articles reporting on policy issues. Additional
 the repository contains our **model** named GRU-TSC, which achieves state-of-the-art
 TSC classification performance on NewsMTSC. Check it out - it **works out of the box** :-)
 
-**Quick start**
+# Quick start
 
 * **I want to classify sentiment**: check out our easy-to-use, high-quality sentiment classifier on [PyPI](https://pypi.org/project/NewsSentiment/)
 * **I need the dataset**: you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip) or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset). We also offer NewsMTSC as a dataset on [Huggingface Hub](https://huggingface.co/datasets/fhamborg/news_sentiment_newsmtsc) and on [Kaggle](https://www.kaggle.com/fhamborg/news-articles-sentiment).
