@@ -692,6 +692,7 @@ class Instructor:
         t_outputs_all = None
         t_text_bert_indices_targets_mask_all = None
         t_texts_all = []
+        t_outputs_confidence = None
 
         # switch model to evaluation mode
         self.own_model.eval()
