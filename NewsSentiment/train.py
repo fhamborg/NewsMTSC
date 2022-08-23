@@ -754,7 +754,6 @@ class Instructor:
             y_pred = self._get_classes_from_sequence_output(
                 t_outputs_all, t_text_bert_indices_targets_mask_all
             ).cpu()
-            t_outputs_confidence = None
         else:
             # softmax: get predictions from outputs
             # have to take the 3rd (dim=2) dimension
