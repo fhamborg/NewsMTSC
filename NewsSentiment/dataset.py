@@ -267,7 +267,7 @@ class FXEasyTokenizer:
             # offset the relation by 1 so that the root relation (which is 0) is
             # non-zero
             index_of_relation_to_head = (
-                nlp_dep_parser_labels.index(relation_to_head) + 1
+                self.NLP_DEP_PARSER_LABELS.index(relation_to_head) + 1
             )
             # insert to dependency tensor
             dependency_tensor[
