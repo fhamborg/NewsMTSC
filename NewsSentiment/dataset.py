@@ -42,15 +42,6 @@ from NewsSentiment.knowledge.zeros.zerosknowledge import (
 from NewsSentiment.models.FXBaseModel import FXBaseModel
 
 logger = get_logger()
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    spacy.cli.download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
-
-# get list of parser's labels
-parser_index = nlp.pipe_names.index("parser")
-nlp_dep_parser_labels = list(nlp.pipeline[parser_index][1].labels)
 
 
 class RandomOversampler(torch.utils.data.sampler.Sampler):
@@ -86,6 +77,7 @@ class RandomOversampler(torch.utils.data.sampler.Sampler):
 
 
 class FXEasyTokenizer:
+    NLP_DEP_PARSER_LABELS = None
     NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES = 0
     __PROCESSED_KNOWLEDGE_SOURCES = set()
 
@@ -96,10 +88,25 @@ class FXEasyTokenizer:
         knowledge_sources: Iterable[str],
         is_use_natural_target_phrase_for_spc: bool,
     ):
+        self._get_labels()
         self.tokenizers_name_and_obj = tokenizers_name_and_obj
         self.max_seq_len = max_seq_len
         self.knowledge_sources = knowledge_sources
         self.is_use_natural_target_phrase_for_spc = is_use_natural_target_phrase_for_spc
+
+    @classmethod
+    def _get_labels(cls):
+        if cls.NLP_DEP_PARSER_LABELS is None:
+            return
+        try:
+            nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            spacy.cli.download("en_core_web_sm")
+            nlp = spacy.load("en_core_web_sm")
+
+        # get list of parser's labels
+        parser_index = nlp.pipe_names.index("parser")
+        cls.NLP_DEP_PARSER_LABELS = list(nlp.pipeline[parser_index][1].labels)
 
     @staticmethod
     def create_entire_text(
