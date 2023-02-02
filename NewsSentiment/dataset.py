@@ -77,6 +77,7 @@ class RandomOversampler(torch.utils.data.sampler.Sampler):
 
 
 class FXEasyTokenizer:
+    NLP = None
     NLP_DEP_PARSER_LABELS = None
     NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES = 0
     __PROCESSED_KNOWLEDGE_SOURCES = set()
@@ -96,17 +97,17 @@ class FXEasyTokenizer:
 
     @classmethod
     def _get_labels(cls):
-        if cls.NLP_DEP_PARSER_LABELS is None:
+        if cls.NLP_DEP_PARSER_LABELS is not None:
             return
         try:
-            nlp = spacy.load("en_core_web_sm")
+            cls.NLP = spacy.load("en_core_web_sm")
         except OSError:
             spacy.cli.download("en_core_web_sm")
-            nlp = spacy.load("en_core_web_sm")
+            cls.NLP = spacy.load("en_core_web_sm")
 
         # get list of parser's labels
-        parser_index = nlp.pipe_names.index("parser")
-        cls.NLP_DEP_PARSER_LABELS = list(nlp.pipeline[parser_index][1].labels)
+        parser_index = cls.NLP.pipe_names.index("parser")
+        cls.NLP_DEP_PARSER_LABELS = list(cls.NLP.pipeline[parser_index][1].labels)
 
     @staticmethod
     def create_entire_text(
@@ -283,7 +284,7 @@ class FXEasyTokenizer:
         # whitespace split as in https://github.com/StevePhan101/LCFS-BERT/
         # we ensure that the same tokenization as was used for the text is applied for
         # the target
-        nlp_target = nlp(target)
+        nlp_target = self.NLP(target)
         # target_terms_lowercased = [a.lower() for a in target.split()]
         target_terms_lowercased = [a.text.lower() for a in nlp_target]
 
@@ -542,7 +543,7 @@ class FXEasyTokenizer:
         # for spacy, we need to remove leading spaces as they will yield a single
         # token
         text_without_leading_space = text.strip()
-        nlp_text = nlp(text_without_leading_space)
+        nlp_text = self.NLP(text_without_leading_space)
 
         # get only non-single-space tokens, see
         # https://github.com/explosion/spaCy/issues/1707
