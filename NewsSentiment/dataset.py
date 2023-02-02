@@ -42,15 +42,6 @@ from NewsSentiment.knowledge.zeros.zerosknowledge import (
 from NewsSentiment.models.FXBaseModel import FXBaseModel
 
 logger = get_logger()
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    spacy.cli.download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
-
-# get list of parser's labels
-parser_index = nlp.pipe_names.index("parser")
-nlp_dep_parser_labels = list(nlp.pipeline[parser_index][1].labels)
 
 
 class RandomOversampler(torch.utils.data.sampler.Sampler):
@@ -86,6 +77,8 @@ class RandomOversampler(torch.utils.data.sampler.Sampler):
 
 
 class FXEasyTokenizer:
+    NLP = None
+    NLP_DEP_PARSER_LABELS = None
     NUM_CATEGORIES_OF_SELECTED_KNOWLEDGE_SOURCES = 0
     __PROCESSED_KNOWLEDGE_SOURCES = set()
 
@@ -96,10 +89,25 @@ class FXEasyTokenizer:
         knowledge_sources: Iterable[str],
         is_use_natural_target_phrase_for_spc: bool,
     ):
+        self._get_labels()
         self.tokenizers_name_and_obj = tokenizers_name_and_obj
         self.max_seq_len = max_seq_len
         self.knowledge_sources = knowledge_sources
         self.is_use_natural_target_phrase_for_spc = is_use_natural_target_phrase_for_spc
+
+    @classmethod
+    def _get_labels(cls):
+        if cls.NLP_DEP_PARSER_LABELS is not None:
+            return
+        try:
+            cls.NLP = spacy.load("en_core_web_sm")
+        except OSError:
+            spacy.cli.download("en_core_web_sm")
+            cls.NLP = spacy.load("en_core_web_sm")
+
+        # get list of parser's labels
+        parser_index = cls.NLP.pipe_names.index("parser")
+        cls.NLP_DEP_PARSER_LABELS = list(cls.NLP.pipeline[parser_index][1].labels)
 
     @staticmethod
     def create_entire_text(
@@ -260,7 +268,7 @@ class FXEasyTokenizer:
             # offset the relation by 1 so that the root relation (which is 0) is
             # non-zero
             index_of_relation_to_head = (
-                nlp_dep_parser_labels.index(relation_to_head) + 1
+                self.NLP_DEP_PARSER_LABELS.index(relation_to_head) + 1
             )
             # insert to dependency tensor
             dependency_tensor[
@@ -276,7 +284,7 @@ class FXEasyTokenizer:
         # whitespace split as in https://github.com/StevePhan101/LCFS-BERT/
         # we ensure that the same tokenization as was used for the text is applied for
         # the target
-        nlp_target = nlp(target)
+        nlp_target = self.NLP(target)
         # target_terms_lowercased = [a.lower() for a in target.split()]
         target_terms_lowercased = [a.text.lower() for a in nlp_target]
 
@@ -535,7 +543,7 @@ class FXEasyTokenizer:
         # for spacy, we need to remove leading spaces as they will yield a single
         # token
         text_without_leading_space = text.strip()
-        nlp_text = nlp(text_without_leading_space)
+        nlp_text = self.NLP(text_without_leading_space)
 
         # get only non-single-space tokens, see
         # https://github.com/explosion/spaCy/issues/1707
