@@ -82,6 +82,9 @@ pool to run experiments of these argument combinations in parallel. After comple
 which contains detailed results, including evaluation performance, of all experiments. By using `createoverview.py`, you
 can export this summary into an Excel spreadsheet.   
 
+# Support
+If you have questions on how to use NewsMTSC or its library, please create a new [issue](https://github.com/fhamborg/NewsMTSC/issues) on GitHub. Please understand that we are not able to provide individual support via email. We think that help is more valuable if it is shared publicly so that more people can benefit from it.
+
 # Acknowledgements
 This repository is in part based on [ABSA-PyTorch](https://github.com/songyouwei/ABSA-PyTorch).
 We thank Song et al. for making their excellent repository open source.
