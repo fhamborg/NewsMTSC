@@ -15,6 +15,8 @@ TSC classification performance on NewsMTSC. Check it out - it **works out of the
 * **I need the dataset**: you can [download it here](https://github.com/fhamborg/NewsMTSC/raw/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset/NewsMTSC-dataset.zip) or [view it here](https://github.com/fhamborg/NewsMTSC/tree/main/NewsSentiment/controller_data/datasets/NewsMTSC-dataset). We also offer NewsMTSC as a dataset on [Huggingface Hub](https://huggingface.co/datasets/fhamborg/news_sentiment_newsmtsc) and on [Kaggle](https://www.kaggle.com/fhamborg/news-articles-sentiment).
 * **I want to train my own models**: read the remainder of this file.
 
+Reminder: the following description is only relevant if you in fact want to train your own models. If that's not the case, please check above for links to the dataset and our easy-to-use python package.
+
 
 # Installation
 It's super easy, we promise! Note that following these instructions is only necessary if you're planning to train a model using our tool. If you only want to predict the sentiment of sentences, please use our [Python package](https://pypi.org/project/NewsSentiment/), which is even easier to install and use :-)
