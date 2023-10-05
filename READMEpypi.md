@@ -44,6 +44,11 @@ sentiment = tsc.infer_from_text("" ,"Mark Meadows", "'s coverup of Trump’s cou
 print(sentiment[0])
 ```
 
+# How to identify a person in a sentence?
+
+In case your data is not separated as shown in the examples above, i.e., in three segments, you will need to identify one (or more) targets first.
+How this is done best depends on your project and analysis task but you may, for example, use NER. This [example](https://github.com/fhamborg/NewsMTSC/issues/30#issuecomment-1700645679) shows a simple way of doing so.
+
 # How to cite
 If you use the dataset or model, please cite our [paper](https://www.aclweb.org/anthology/2021.eacl-main.142/) ([PDF](https://www.aclweb.org/anthology/2021.eacl-main.142.pdf)):
 
