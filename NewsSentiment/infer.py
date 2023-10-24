@@ -115,7 +115,7 @@ class TargetSentimentClassifier:
         if text:
             text_left = text[:target_mention_from]
             target_mention = text[target_mention_from:target_mention_to]
-            text_right = text[target_mention_from:]
+            text_right = text[target_mention_to:]
 
         # assert text_left.endswith(' ') # we cannot handle commas, if we have this
         # check
