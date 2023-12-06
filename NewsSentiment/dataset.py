@@ -1,6 +1,18 @@
 import random
-from collections import Counter
-from typing import List, Iterable, Set
+from collections import Counter, defaultdict
+from typing import (
+    List,
+    Iterable,
+    Set,
+    Union,
+    Dict,
+    overload,
+    Sequence,
+    Mapping,
+    Literal,
+    Tuple,
+    Optional,
+)
 
 import jsonlines
 import networkx as nx
@@ -16,6 +28,7 @@ from transformers import (
     XLNetTokenizer,
     AlbertTokenizer,
 )
+from math import ceil
 
 from NewsSentiment.SentimentClasses import SentimentClasses
 from NewsSentiment.customexceptions import TooLongTextException, TargetNotFoundException
@@ -110,12 +123,32 @@ class FXEasyTokenizer:
         cls.NLP_DEP_PARSER_LABELS = list(cls.NLP.pipeline[parser_index][1].labels)
 
     @staticmethod
+    @overload
+    def create_entire_text(
+        text_left: str,
+        target_phrase: str,
+        text_right: str,
+        is_return_modified_text_left: Literal[True],
+    ) -> Tuple[str, str]:
+        ...
+
+    @staticmethod
+    @overload
+    def create_entire_text(
+        text_left: str,
+        target_phrase: str,
+        text_right: str,
+        is_return_modified_text_left: Literal[False],
+    ) -> str:
+        ...
+
+    @staticmethod
     def create_entire_text(
         text_left: str,
         target_phrase: str,
         text_right: str,
         is_return_modified_text_left: bool,
-    ):
+    ) -> Union[Tuple[str, str], str]:
         """
         Create the entire text from the three prepared text segment. Will modify
         text_left (append a whitespace " ") if it is empty, which is necessary for
@@ -152,8 +185,7 @@ class FXEasyTokenizer:
         :param text_left:
         :return:
         """
-        while len(text_left) > 0 and text_left[0] == "\n":
-            text_left = text_left[1:]
+        text_left = text_left.lstrip("\n")
         if len(text_left) > 0 and text_left[-1] != " ":
             text_left += " "
         return text_left
@@ -165,9 +197,7 @@ class FXEasyTokenizer:
         :param target_mention:
         :return:
         """
-        while len(target_mention) > 0 and target_mention[0] == "\n":
-            target_mention = target_mention[1:]
-        return target_mention
+        return target_mention.lstrip("\n")
 
     @staticmethod
     def prepare_right_segment(text_right: str):
@@ -516,8 +546,8 @@ class FXEasyTokenizer:
             self.max_seq_len, num_categories, dtype=torch.long
         )
         for word_index, word in enumerate(text_tokens_as_str, start=offset):
-            positions_of_current_word_in_input_sequence = self._map_token_index_to_wordpiece_index(
-                mapping, word_index
+            positions_of_current_word_in_input_sequence = (
+                self._map_token_index_to_wordpiece_index(mapping, word_index)
             )
             if mode == "nrc_emotions":
                 emotion_tensor = get_nrc_emotions_as_tensor(word)
@@ -600,7 +630,10 @@ class FXEasyTokenizer:
             dependency_column = dependency_tensor_of_tokens[word_index].tolist()
             dependency_column_ones = self._convert_non_null_to_one(dependency_column)
             _check_num_heads = sum(dependency_column_ones)
-            assert _check_num_heads in [0, 1,], (
+            assert _check_num_heads in [
+                0,
+                1,
+            ], (
                 f"expected only zero or one heads, found {_check_num_heads} for word "
                 f"{word} in {text_tokens_as_str}"
             )
@@ -617,11 +650,15 @@ class FXEasyTokenizer:
             dependency_type = dependency_column[head_index]
             assert dependency_type != 0
 
-            positions_of_current_word_in_input_sequence = self._map_token_index_to_wordpiece_index(
-                mapping_token2wordpiece, word_index_withoffset
+            positions_of_current_word_in_input_sequence = (
+                self._map_token_index_to_wordpiece_index(
+                    mapping_token2wordpiece, word_index_withoffset
+                )
             )
-            positions_of_current_head_in_input_sequence = self._map_token_index_to_wordpiece_index(
-                mapping_token2wordpiece, head_index_withoffset
+            positions_of_current_head_in_input_sequence = (
+                self._map_token_index_to_wordpiece_index(
+                    mapping_token2wordpiece, head_index_withoffset
+                )
             )
 
             for position_word in positions_of_current_word_in_input_sequence:
@@ -669,8 +706,10 @@ class FXEasyTokenizer:
         ):
             word_index_without_offset = word_index - mapping_token2wordpiece_offset
 
-            positions_of_current_word_in_input_sequence = self._map_token_index_to_wordpiece_index(
-                mapping_token2wordpiece, word_index
+            positions_of_current_word_in_input_sequence = (
+                self._map_token_index_to_wordpiece_index(
+                    mapping_token2wordpiece, word_index
+                )
             )
 
             depdistance_of_current_word_in_input_sequence = dist[
@@ -686,194 +725,316 @@ class FXEasyTokenizer:
 
     def create_model_input_seqs(
         self,
-        text_left,
-        target_phrase,
-        text_right,
-        coreferential_targets_for_target_mask: Iterable[dict],
-    ):
+        text_left: str,
+        target_phrase: str,
+        text_right: str,
+        coreferential_targets_for_target_mask: Optional[Iterable[dict]],
+    ) -> Mapping[str, Mapping[str, Union[torch.Tensor, bool]]]:
         """
         Creates input sequences for a given target. Prior components have processed the jsonl
         so that coreferential_targets_for_target_mask will contain a list of coreferential
         mentions of the target if and only if coref_mode == "in_targetmask". In that case,
         will produce an individual target mask for each coref mention and merge them to
         the target mask of the preferred mention.
-        :param text_left:
-        :param target_phrase:
-        :param text_right:
-        :param further_mentions:
-        :return:
         """
-        text = self.create_entire_text(
-            text_left, target_phrase, text_right, is_return_modified_text_left=False
+        assert all(
+            isinstance(arg, str) for arg in (text_left, target_phrase, text_right)
+        ), "Wrong input types."
+
+        return self.create_model_input_seqs_batch(
+            (text_left, target_phrase, text_right),
+            coreferential_targets_for_target_mask=(
+                coreferential_targets_for_target_mask,
+            ),
+            single_target_output=True,
         )
-        logger.debug(f"'{text_left}' '{target_phrase}' '{text_right}'")
 
-        input_seqs_per_tokenizer = {}
+    @overload
+    def create_model_input_seqs_batch(
+        self,
+        *targets: ...,
+        coreferential_targets_for_target_mask: ...,
+        batch_size: int = ...,
+        single_target_output: Literal[False] = ...,
+    ) -> List[Mapping[str, Mapping[str, Union[torch.Tensor, Tuple[bool], bool]]]]:
+        ...
 
-        for name, tok_obj in self.tokenizers_name_and_obj.items():
-            logger.debug(f"{name}")
+    @overload
+    def create_model_input_seqs_batch(
+        self,
+        *targets: ...,
+        coreferential_targets_for_target_mask: ...,
+        batch_size: int = ...,
+        single_target_output: Literal[True] = ...,
+    ) -> Mapping[str, Mapping[str, Union[torch.Tensor, bool]]]:
+        ...
 
-            # text
-            text_ids_with_special_tokens = tok_obj.encode(
-                text,
-                max_length=self.max_seq_len,
-                pad_to_max_length=True,
-                add_special_tokens=True,
-                truncation="longest_first",
+    def create_model_input_seqs_batch(
+        self,
+        *targets: Tuple[str, str, str],
+        coreferential_targets_for_target_mask: Optional[
+            Sequence[Optional[Iterable[dict]]]
+        ],
+        batch_size: int = 1,
+        single_target_output: bool = False,
+    ) -> Union[
+        List[Mapping[str, Mapping[str, Union[torch.Tensor, Tuple[bool], bool]]]],
+        Mapping[str, Mapping[str, Union[torch.Tensor, bool]]],
+    ]:
+        """
+        Creates input sequences for given targets. Prior components have processed the jsonl
+        so that coreferential_targets_for_target_mask will contain a list of coreferential
+        mentions of the targets if and only if coref_mode == "in_targetmask". In that case,
+        will produce an individual target mask for each coref mention and merge them to
+        the target mask of the preferred mention.
+
+        NEW
+        Multiple target inputs and batching. Output will be a tuple of batches with the
+        created sequences being of shape [batch_size,seq_length]. To output a single
+        target without batch output and with tensors of shape [seq_length],
+        set squeeze_single_target = True.
+        """
+
+        num_targets = len(targets)
+        num_batches = ceil(num_targets / batch_size)
+
+        if not coreferential_targets_for_target_mask:
+            coreferential_targets_for_target_mask = [None] * num_targets
+        elif num_targets != len(coreferential_targets_for_target_mask):
+            raise TypeError(
+                "Number of coreferential_targets_for_target_mask must match number of targets."
             )
-            # text SEP target
-            adjusted_target_phrase = target_phrase
-            if self.is_use_natural_target_phrase_for_spc:
-                adjusted_target_phrase = "What do you think of " + target_phrase + "?"
-            text_then_target_ids_with_special_tokens_dict = tok_obj.encode_plus(
-                text,
-                text_pair=adjusted_target_phrase,
-                max_length=self.max_seq_len,
-                pad_to_max_length=True,
-                add_special_tokens=True,
-                truncation="longest_first",
-            )
-            text_then_target_ids_with_special_tokens_dict = (
-                text_then_target_ids_with_special_tokens_dict.data
-            )
-            text_then_target_ids_with_special_tokens = text_then_target_ids_with_special_tokens_dict[
-                "input_ids"
-            ]
-            if type(tok_obj) == RobertaTokenizer:
-                # roberta doesnt have segments, so we produce fake segment ids here, and later simply dont pass them
-                text_then_target_ids_with_special_tokens_segment_ids = [0] * len(
-                    text_then_target_ids_with_special_tokens
-                )
+
+        single_output = False
+        if single_target_output:
+            if num_targets == 1:
+                single_output = True
             else:
-                text_then_target_ids_with_special_tokens_segment_ids = text_then_target_ids_with_special_tokens_dict[
-                    "token_type_ids"
-                ]
-            # target
-            target_ids_with_special_tokens = tok_obj.encode(
-                target_phrase,
-                max_length=self.max_seq_len,
-                pad_to_max_length=True,
-                add_special_tokens=True,
-                truncation="longest_first",
-            )
-
-            # create target masks
-            target_mask_seq_for_text_with_special_tokens = self._create_target_mask(
-                tok_obj,
-                text_left,
-                target_phrase,
-                text_right,
-                for_text_with_special_tokens=True,
-            )
-            # create target mask for coreferential targets of given target
-            coref_target_masks = self._create_coreferential_target_masks(
-                tok_obj, coreferential_targets_for_target_mask
-            )
-            # merge them into the preferred target mask
-            merged_target_mask = self._merge_coref_target_masks_into_preferred_target_mask(
-                target_mask_seq_for_text_with_special_tokens, coref_target_masks
-            )
-            target_mask_seq_for_text_with_special_tokens = merged_target_mask
-
-            # create also text ids without max length to see if the one that will be
-            # used was truncated
-            text_ids_with_special_tokens_no_max_length = tok_obj.encode(
-                text, add_special_tokens=True
-            )
-            text_num_truncated_tokens = len(
-                text_ids_with_special_tokens_no_max_length
-            ) - len(text_ids_with_special_tokens)
-
-            # iterate tokens of full text and look up in dicts
-            # create mapping from token-based indexes to wordpiece-based indexes
-            # the function will also remove any tokens for which the word piece index
-            # would be after max seq len
-            # under certain circumstances, e.g., when using albert as well as the target
-            # phrase is close to what would be cut off (but is not at this point), it can happen
-            # that at a later point in time, i.e., _create_dependency_tree_hop_distances_of_tokens_to_target
-            # or more specifically _calculate_dep_distance, the target cannot be found in the list of
-            # tokens anymore, because this list of now cut off. thus, i changed the assert in
-            # _calculate_dep_distance to throwing an exception that is catched later on
-            (
-                mapping_token2wordpiece,
-                mapping_token2wordpiece_offset,
-                text_tokens_as_str,
-                text_tokens,
-            ) = self._create_mapping_from_tokenbased_to_wordpiece_based(text, tok_obj)
-
-            # create additional knowledge source tensors
-            # stack only those knowledge sources that were requested by arguments
-            selected_tensors_knowledge_sources_text = []
-            for source in self.knowledge_sources:
-                text_tensor = self._create_knowledge_source_tensor(
-                    text_tokens_as_str,
-                    mapping_token2wordpiece_offset,
-                    mapping_token2wordpiece,
-                    source,
+                logger.warning(
+                    """Multiple targets: single_target_output (is True) will be ignored!
+                    Consider using create_model_input_seqs() instead."""
                 )
-                selected_tensors_knowledge_sources_text.append(text_tensor)
-            if self.knowledge_sources:
-                text_stacked_knowledge_source_info = torch.cat(
-                    tuple(selected_tensors_knowledge_sources_text), dim=1
-                )
-            else:
-                text_stacked_knowledge_source_info = None
 
-            # syntax hop distance
-            text_dependency_tree_hop_distances = self._create_dependency_tree_hop_distances_of_tokens_to_target(
-                text_tokens,
-                len(text_left),
-                target_phrase,
-                text_tokens_as_str,
-                mapping_token2wordpiece,
-                mapping_token2wordpiece_offset,
+        out: List[Mapping[str, Mapping[str, Union[torch.Tensor, bool]]]] = []
+
+        for batch_number in range(num_batches):
+            batch_result = {}
+            batch_start = batch_number * batch_size
+            batch_end = (
+                None
+                if batch_number == num_batches - 1
+                else (batch_number + 1) * batch_size
             )
 
-            text_dependency_matrix = self._create_dependency_tensor(
-                text_tokens,
-                text_tokens_as_str,
-                mapping_token2wordpiece,
-                mapping_token2wordpiece_offset,
-            )
+            for tok_name, tok_obj in self.tokenizers_name_and_obj.items():
+                logger.debug(f"{tok_name}")
 
-            # create item with indexes and masks
-            input_seqs_per_tokenizer[name] = {
-                FIELD_TEXT_IDS_WITH_SPECIAL_TOKENS: torch.LongTensor(
-                    text_ids_with_special_tokens
-                ),
-                FIELD_TEXT_IDS_WITH_SPECIAL_TOKENS_TARGET_MASK: torch.FloatTensor(
-                    target_mask_seq_for_text_with_special_tokens
-                ),
-                FIELD_IS_OVERFLOW: text_num_truncated_tokens > 0,
-                FIELD_TEXT_THEN_TARGET_IDS_WITH_SPECIAL_TOKENS: torch.LongTensor(
-                    text_then_target_ids_with_special_tokens
-                ),
-                # we used to have text-then-target target mask here, but won't use it,
-                # since it would be identical to the text target mask (since we only
-                # want to mark the target within the text, but not in the 2nd target
-                # component)
-                # FIELD_TEXT_THEN_TARGET_IDS_WITH_SPECIAL_TOKENS_TARGET_MASK: torch.LongTensor(
-                #    text_then_target_ids_with_special_tokens_target_mask,
-                # ),
-                FIELD_TEXT_THEN_TARGET_IDS_WITH_SPECIAL_TOKENS_SEGMENT_IDS: torch.LongTensor(
-                    text_then_target_ids_with_special_tokens_segment_ids
-                ),
-                FIELD_TARGET_IDS_WITH_SPECIAL_TOKENS: torch.LongTensor(
-                    target_ids_with_special_tokens
-                ),
-                FIELD_SYNTAX_HOP_DISTANCE_TO_TARGET: text_dependency_tree_hop_distances,
-                FIELD_SYNTAX_DEPENDENCY_MATRIX: text_dependency_matrix,
-            }
+                tokenizer_result = defaultdict(list)
 
-            # add knowledge source if requested
-            if self.knowledge_sources:
-                input_seqs_per_tokenizer[name][
-                    FIELD_TEXT_IDS_WITH_SPECIAL_TOKENS_SELECTED_KNOWLEDGE_SOURCES
-                ] = text_stacked_knowledge_source_info
-                # likewise as for FIELD_TEXT_THEN_TARGET_IDS_WITH_SPECIAL_TOKENS_TARGET_MASK, we
-                # don't need to set a special knowledge source mask for text-then-target
+                for (left, target_phrase, right), corefs in zip(
+                    targets[batch_start:batch_end],
+                    coreferential_targets_for_target_mask[batch_start:batch_end],
+                ):
+                    text = self.create_entire_text(
+                        left, target_phrase, right, is_return_modified_text_left=False
+                    )
+                    logger.debug(f"'{left}' '{target_phrase}' '{right}'")
 
-        return input_seqs_per_tokenizer
+                    # text
+                    text_ids_with_special_tokens = tok_obj.encode(
+                        text,
+                        max_length=self.max_seq_len,
+                        pad_to_max_length=True,
+                        add_special_tokens=True,
+                        truncation="longest_first",
+                    )
+                    # text SEP target
+                    adjusted_target_phrase = target_phrase
+                    if self.is_use_natural_target_phrase_for_spc:
+                        adjusted_target_phrase = (
+                            "What do you think of " + target_phrase + "?"
+                        )
+                    text_then_target_ids_with_special_tokens_dict = tok_obj.encode_plus(
+                        text,
+                        text_pair=adjusted_target_phrase,
+                        max_length=self.max_seq_len,
+                        pad_to_max_length=True,
+                        add_special_tokens=True,
+                        truncation="longest_first",
+                    )
+                    text_then_target_ids_with_special_tokens_dict = (
+                        text_then_target_ids_with_special_tokens_dict.data
+                    )
+                    text_then_target_ids_with_special_tokens = (
+                        text_then_target_ids_with_special_tokens_dict["input_ids"]
+                    )
+                    if type(tok_obj) == RobertaTokenizer:
+                        # roberta doesnt have segments, so we produce fake segment ids
+                        # here, and later simply dont pass them
+                        text_then_target_ids_with_special_tokens_segment_ids = [
+                            0
+                        ] * len(text_then_target_ids_with_special_tokens)
+                    else:
+                        text_then_target_ids_with_special_tokens_segment_ids = (
+                            text_then_target_ids_with_special_tokens_dict[
+                                "token_type_ids"
+                            ]
+                        )
+                    # target
+                    target_ids_with_special_tokens = tok_obj.encode(
+                        target_phrase,
+                        max_length=self.max_seq_len,
+                        pad_to_max_length=True,
+                        add_special_tokens=True,
+                        truncation="longest_first",
+                    )
+
+                    # create target masks
+                    target_mask_seq_for_text_with_special_tokens = (
+                        self._create_target_mask(
+                            tok_obj,
+                            left,
+                            target_phrase,
+                            right,
+                            for_text_with_special_tokens=True,
+                        )
+                    )
+                    if corefs:
+                        # create target mask for coreferential targets of given target
+                        coref_target_masks = self._create_coreferential_target_masks(
+                            tok_obj, corefs
+                        )
+                        # merge them into the preferred target mask
+                        merged_target_mask = (
+                            self._merge_coref_target_masks_into_preferred_target_mask(
+                                target_mask_seq_for_text_with_special_tokens,
+                                coref_target_masks,
+                            )
+                        )
+                        target_mask_seq_for_text_with_special_tokens = (
+                            merged_target_mask
+                        )
+
+                    # create also text ids without max length to see if the one that will be
+                    # used was truncated
+                    text_ids_with_special_tokens_no_max_length = tok_obj.encode(
+                        text, add_special_tokens=True
+                    )
+                    text_num_truncated_tokens = len(
+                        text_ids_with_special_tokens_no_max_length
+                    ) - len(text_ids_with_special_tokens)
+
+                    # iterate tokens of full text and look up in dicts
+                    # create mapping from token-based indexes to wordpiece-based indexes
+                    # the function will also remove any tokens for which the word piece index
+                    # would be after max seq len
+                    # under certain circumstances, e.g., when using albert as well as the target
+                    # phrase is close to what would be cut off (but is not at this point), it can happen
+                    # that at a later point in time, i.e., _create_dependency_tree_hop_distances_of_tokens_to_target
+                    # or more specifically _calculate_dep_distance, the target cannot be found in the list of
+                    # tokens anymore, because this list of now cut off. thus, i changed the assert in
+                    # _calculate_dep_distance to throwing an exception that is catched later on
+                    (
+                        mapping_token2wordpiece,
+                        mapping_token2wordpiece_offset,
+                        text_tokens_as_str,
+                        text_tokens,
+                    ) = self._create_mapping_from_tokenbased_to_wordpiece_based(
+                        text, tok_obj
+                    )
+
+                    # create additional knowledge source tensors
+                    # stack only those knowledge sources that were requested by arguments
+                    selected_tensors_knowledge_sources_text = []
+                    for source in self.knowledge_sources:
+                        text_tensor = self._create_knowledge_source_tensor(
+                            text_tokens_as_str,
+                            mapping_token2wordpiece_offset,
+                            mapping_token2wordpiece,
+                            source,
+                        )
+                        selected_tensors_knowledge_sources_text.append(text_tensor)
+                    if self.knowledge_sources:
+                        text_stacked_knowledge_source_info = torch.cat(
+                            tuple(selected_tensors_knowledge_sources_text), dim=1
+                        )
+                    else:
+                        text_stacked_knowledge_source_info = None
+
+                    # syntax hop distance
+                    text_dependency_tree_hop_distances = (
+                        self._create_dependency_tree_hop_distances_of_tokens_to_target(
+                            text_tokens,
+                            len(left),
+                            target_phrase,
+                            text_tokens_as_str,
+                            mapping_token2wordpiece,
+                            mapping_token2wordpiece_offset,
+                        )
+                    )
+
+                    text_dependency_matrix = self._create_dependency_tensor(
+                        text_tokens,
+                        text_tokens_as_str,
+                        mapping_token2wordpiece,
+                        mapping_token2wordpiece_offset,
+                    )
+
+                    # create item with indexes and masks
+                    result = {
+                        FIELD_TEXT_IDS_WITH_SPECIAL_TOKENS: torch.LongTensor(
+                            text_ids_with_special_tokens
+                        ),
+                        FIELD_TEXT_IDS_WITH_SPECIAL_TOKENS_TARGET_MASK: torch.FloatTensor(
+                            target_mask_seq_for_text_with_special_tokens
+                        ),
+                        FIELD_IS_OVERFLOW: text_num_truncated_tokens > 0,
+                        FIELD_TEXT_THEN_TARGET_IDS_WITH_SPECIAL_TOKENS: torch.LongTensor(
+                            text_then_target_ids_with_special_tokens
+                        ),
+                        FIELD_TEXT_THEN_TARGET_IDS_WITH_SPECIAL_TOKENS_SEGMENT_IDS: torch.LongTensor(
+                            text_then_target_ids_with_special_tokens_segment_ids
+                        ),
+                        FIELD_TARGET_IDS_WITH_SPECIAL_TOKENS: torch.LongTensor(
+                            target_ids_with_special_tokens
+                        ),
+                        FIELD_SYNTAX_HOP_DISTANCE_TO_TARGET: text_dependency_tree_hop_distances,
+                        FIELD_SYNTAX_DEPENDENCY_MATRIX: text_dependency_matrix,
+                    }
+
+                    # add knowledge source if requested
+                    if self.knowledge_sources:
+                        result[
+                            FIELD_TEXT_IDS_WITH_SPECIAL_TOKENS_SELECTED_KNOWLEDGE_SOURCES
+                        ] = text_stacked_knowledge_source_info
+
+                    # add result to tokenizer result
+                    if single_output:
+                        tokenizer_result.update(result)
+                    else:
+                        for field_name, field_content in result.items():
+                            tokenizer_result[field_name].append(field_content)
+
+                if not single_output:
+                    # stack tensors in tokenizer result
+                    for field_name, field_content in tokenizer_result.items():
+                        tokenizer_result[field_name] = (
+                            torch.stack(field_content)
+                            if isinstance(field_content[0], torch.Tensor)
+                            else tuple(field_content)
+                        )
+
+                # add tokenizer result to batch result
+                batch_result[tok_name] = dict(tokenizer_result)
+
+            if single_output:
+                # return the single target result if requested
+                return batch_result
+
+            # add batch result to output
+            out.append(batch_result)
+
+        return out
 
     def _create_coreferential_target_masks(
         self, tok_obj, coreferential_targets_for_target_mask
@@ -1110,7 +1271,10 @@ class FXDataset(Dataset):
         target_mention = FXEasyTokenizer.prepare_target_mention(target_mention)
         text_right = FXEasyTokenizer.prepare_right_segment(text_right)
         text = FXEasyTokenizer.create_entire_text(
-            text_left, target_mention, text_right, is_return_modified_text_left=False,
+            text_left,
+            target_mention,
+            text_right,
+            is_return_modified_text_left=False,
         )
 
         # text to indexes
@@ -1393,8 +1557,10 @@ class FXDataset(Dataset):
 
         # if the coref mode (only during training though) is additional_examples, repeat them here
         if coref_mode == "additional_examples":
-            expanded_targets = self._expand_coref_mentions_of_targets_to_multiple_targets(
-                targets, text
+            expanded_targets = (
+                self._expand_coref_mentions_of_targets_to_multiple_targets(
+                    targets, text
+                )
             )
         elif coref_mode == "in_targetmask":
             expanded_targets = targets
@@ -1420,8 +1586,10 @@ class FXDataset(Dataset):
                 example_id, text, expanded_targets
             )
         else:
-            items = self._convert_multi_targets_in_single_item_to_k_targets_in_multi_items(
-                example_id, text, expanded_targets
+            items = (
+                self._convert_multi_targets_in_single_item_to_k_targets_in_multi_items(
+                    example_id, text, expanded_targets
+                )
             )
 
         # iterate (virtual) items of this actual row in the jsonl and create model items
