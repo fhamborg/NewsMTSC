@@ -186,14 +186,14 @@ class TargetSentimentClassifier:
             Must be either one single or multiple component or index based targets."""
 
         return (
-            self.infer_batch(
+            self.batch_infer(
                 component_base if is_component_based else index_base, batch_size=1
             )[0]
             if not is_targets_based
-            else self.infer_batch(*targets, batch_size=batch_size)
+            else self.batch_infer(*targets, batch_size=batch_size)
         )
 
-    def infer_batch(
+    def batch_infer(
         self,
         *targets: Union[Tuple[str, str, str], Tuple[str, int, int]],
         batch_size: int = 1,
@@ -251,8 +251,8 @@ class TargetSentimentClassifier:
                 )
             )
 
-        indexed_examples = self.tokenizer.create_model_input_seqs_batch(
-            *targets_prepared,
+        indexed_examples = self.tokenizer.batch_create_model_input_seqs(
+            targets=targets_prepared,
             coreferential_targets_for_target_mask=None,
             batch_size=batch_size,
             single_target_output=False,
