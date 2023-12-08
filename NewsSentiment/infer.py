@@ -2,9 +2,10 @@ import argparse
 
 import torch
 import torch.nn.functional as F
+from math import ceil
 from jsonlines import jsonlines
 from tqdm import tqdm
-from typing import overload, Any, List, Dict, Union, Sequence, Tuple, Optional, Literal
+from typing import overload, Any, List, Dict, Union, Sequence, Tuple, Optional
 
 from NewsSentiment.SentimentClasses import SentimentClasses
 from NewsSentiment.dataset import FXEasyTokenizer
@@ -94,7 +95,6 @@ class TargetSentimentClassifier:
         target_mention_from: None = None,
         target_mention_to: None = None,
         targets: None = None,
-        batch_size: int = ...,
     ) -> Tuple[Dict[str, Any], ...]:
         ...
 
@@ -108,7 +108,6 @@ class TargetSentimentClassifier:
         target_mention_from: int = ...,
         target_mention_to: int = ...,
         targets: None = None,
-        batch_size: int = ...,
     ) -> Tuple[Dict[str, Any], ...]:
         ...
 
@@ -122,7 +121,6 @@ class TargetSentimentClassifier:
         target_mention_from: None = None,
         target_mention_to: None = None,
         targets: Sequence[Union[Tuple[str, str, str], Tuple[str, int, int]]] = ...,
-        batch_size: int = ...,
     ) -> List[Tuple[Dict[str, Any], ...]]:
         ...
 
@@ -137,7 +135,6 @@ class TargetSentimentClassifier:
         targets: Optional[
             Sequence[Union[Tuple[str, str, str], Tuple[str, int, int]]]
         ] = None,
-        batch_size: int = 1,
     ) -> Union[Tuple[Dict[str, Any], ...], List[Tuple[Dict[str, Any], ...]]]:
         """Computes sentiment for a target mention.
 
@@ -157,11 +154,9 @@ class TargetSentimentClassifier:
             target_mention_to (str | None, optional): End index of the target mention.
                 Defaults to None.
             targets (Sequence[Tuple[str, str, str] | Tuple[str, int, int]] | None,
-                optional): Tuples containing text_left,target_mention,text_right
-                or text,target_mention_from,target_mention_to for multiple targets
+                optional): Tuples containing (text_left,target_mention,text_right)
+                or (text,target_mention_from,target_mention_to) for multiple targets
                 (mixed style is possible). Defaults to None.
-            batch_size (int, optional): Preferred size of batches to compute multiple
-                targets in. Defaults to 1.
 
         Returns:
             Tuple[Dict[str, Any], ...] | List[Tuple[Dict[str, Any], ...]: Tuple (or
@@ -186,40 +181,38 @@ class TargetSentimentClassifier:
             Must be either one single or multiple component or index based targets."""
 
         return (
-            self.batch_infer(
-                component_base if is_component_based else index_base, batch_size=1
-            )[0]
+            self.batch_infer((component_base if is_component_based else index_base,))[0]
             if not is_targets_based
-            else self.batch_infer(*targets, batch_size=batch_size)
+            else self.batch_infer(targets)
         )
 
     def batch_infer(
         self,
-        *targets: Union[Tuple[str, str, str], Tuple[str, int, int]],
-        batch_size: int = 1,
+        targets: Sequence[Union[Tuple[str, str, str], Tuple[str, int, int]]],
     ) -> List[Tuple[Dict[str, Any], ...]]:
-        """Computes sentiment for multiple targets in batches of batch_size.
+        """Computes sentiment for a batch of targets.
         Targets are tuples of text before target, target mention, and text after target.
 
         Args:
-            *targets (Tuple[str,str,str] | Tuple[str,int,int]): Targets to compute
-                sentiment for. Tuples contain (text before, target mention, text after)
-                or (text,target mention start index, target mention end index).
+            targets (Sequence[Tuple[str,str,str] | Tuple[str,int,int]]): Batch of
+                targets to compute sentiment for. Tuples contain
+                (text before, target mention, text after) or
+                (text,target mention start index, target mention end index).
                 Texts before and after the target mention should end with a space
                 (or comma, etc.)), or begin with a space, respectively.
-            batch_size (int, optional): Preferred size of batches to comppute the targets
-                in (vectorized computation). Defaults to 1.
 
         Returns:
             List[Tuple[Dict[str,Any], ...]]: List of target classification tuples,
-            containing class probabilities as dictionaries with keys
-            "class_id", "class_label" and "class_prob". The order of tuples matches the
-            order of input targets.
+                containing class probabilities as dictionaries with keys
+                "class_id", "class_label" and "class_prob".
+                The order of tuples matches the order of input targets.
         """
         targets_prepared = []
 
         for target in targets:
-            assert len(target) == 3, f"{target} is missing one ore more components."
+            assert (
+                len(target) == 3
+            ), f"{target} is missing {3-len(target)} component(s)."
 
             if all(isinstance(component, str) for component in target):
                 text_left, target_mention, text_right = target
@@ -234,7 +227,7 @@ class TargetSentimentClassifier:
                 target_mention = text[target_mention_from:target_mention_to]
                 text_right = text[target_mention_to:]
             else:
-                raise TypeError("Wrong input types.")
+                raise TypeError(f"Wrong input types in {target}.")
 
             # assert text_left.endswith(' ') # we cannot handle commas, if we have this
             # check
@@ -254,38 +247,73 @@ class TargetSentimentClassifier:
         indexed_examples = self.tokenizer.batch_create_model_input_seqs(
             targets=targets_prepared,
             coreferential_targets_for_target_mask=None,
-            batch_size=batch_size,
-            single_target_output=False,
         )
 
-        classification_result = []
+        inputs = self.instructor.select_inputs(indexed_examples, is_single_item=False)
 
-        for batch in indexed_examples:
-            inputs = self.instructor.select_inputs(batch, is_single_item=False)
+        outputs = self.model(inputs)
 
-            outputs = self.model(inputs)
+        class_probabilities_per_target = F.softmax(outputs, dim=-1).cpu().tolist()
 
-            class_probabilities_per_target = F.softmax(outputs, dim=-1).cpu().tolist()
-
-            classification_result.extend(
-                tuple(
-                    sorted(
-                        (
-                            {
-                                "class_id": class_id,
-                                "class_label": self.polarities_inverse[class_id],
-                                "class_prob": class_prob,
-                            }
-                            for class_id, class_prob in enumerate(class_probabilities)
-                        ),
-                        key=lambda x: x["class_prob"],
-                        reverse=True,
-                    )
+        return [
+            tuple(
+                sorted(
+                    (
+                        {
+                            "class_id": class_id,
+                            "class_label": self.polarities_inverse[class_id],
+                            "class_prob": class_prob,
+                        }
+                        for class_id, class_prob in enumerate(class_probabilities)
+                    ),
+                    key=lambda x: x["class_prob"],
+                    reverse=True,
                 )
-                for class_probabilities in class_probabilities_per_target
             )
+            for class_probabilities in class_probabilities_per_target
+        ]
 
-        return classification_result
+    def split_and_infer(
+        self,
+        targets: Sequence[Union[Tuple[str, str, str], Tuple[str, int, int]]],
+        batch_size: int = 32,
+    ) -> List[Tuple[Dict[str, Any], ...]]:
+        """Convenience function for splitting input targets into batches, compute
+        sentiment on each batch (element-wise but vectorized) and return it all in one
+        output.
+
+        Args:
+            targets (Sequence[Tuple[str,str,str] | Tuple[str,int,int]]): Targets
+                to compute sentiment for. Tuples contain
+                (text before, target mention, text after) or
+                (text,target mention start index, target mention end index).
+                Texts before and after the target mention should end with a space
+                (or comma, etc.)), or begin with a space, respectively.
+            batch_size (int, optional): Preferred size of each batch. Defaults to 32.
+
+        Returns:
+            List[Tuple[Dict[str,Any], ...]]: List of target classification tuples,
+                containing class probabilities as dictionaries with keys
+                "class_id", "class_label" and "class_prob".
+                The order of tuples matches the order of input targets.
+        """
+        num_targets = len(targets)
+        num_batches = ceil(num_targets / batch_size)
+
+        out = []
+
+        for batch_start, batch_end in tqdm(
+            zip(
+                range(0, num_targets, batch_size),
+                [*range(batch_size, num_targets, batch_size), None],
+            ),
+            total=num_batches,
+            desc="Processing batches",
+            unit="batch",
+        ):
+            out.extend(self.batch_infer(targets[batch_start:batch_end]))
+
+        return out
 
     def get_info_for_label(self, classification_result, label):
         for r in classification_result:
