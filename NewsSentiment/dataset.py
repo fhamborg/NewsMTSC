@@ -441,7 +441,7 @@ class FXEasyTokenizer:
         """
         return self._batch_create_target_mask(
             tokenizer,
-            [(text_left, target, text_right)],
+            ((text_left, target, text_right),),
             for_text_with_special_tokens,
             is_raise_exception_if_target_after_max_seq_len,
         )[0]
@@ -831,7 +831,7 @@ class FXEasyTokenizer:
         the target mask of the preferred mention.
         """
         batch_result = self.batch_create_model_input_seqs(
-            (text_left, target_phrase, text_right),
+            ((text_left, target_phrase, text_right),),
             coreferential_targets_for_target_mask=(
                 coreferential_targets_for_target_mask,
             ),
@@ -1121,7 +1121,7 @@ class FXEasyTokenizer:
         self, tok_obj, coreferential_targets_for_target_mask: Optional[Iterable[dict]]
     ):
         return self._batch_create_coreferential_target_masks(
-            tok_obj, [coreferential_targets_for_target_mask]
+            tok_obj, (coreferential_targets_for_target_mask,)
         )[0]
 
     def _batch_create_coreferential_target_masks(
