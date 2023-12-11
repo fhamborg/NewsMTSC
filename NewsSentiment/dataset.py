@@ -229,25 +229,15 @@ class FXEasyTokenizer:
         if not for_text_with_special_tokens:
             raise NotImplementedError()
 
-        target_words = []
-        previous_words_per_target = []
-
-        for target in words_per_target:
-            target_previous_words = []
-
-            # words_without_single_whitespace = [word for word in words if word != " "]
-            for word in target:
-                # update left and previous words
-                target_words.append(
-                    (
-                        " ".join(target_previous_words) + " ",  # left
-                        word,  # target
-                        "",  # right
-                    )
-                )
-                target_previous_words.append(word)
-
-            previous_words_per_target.append(target_previous_words)
+        target_words = [
+            (
+                " ".join(target[:word_index]) + " ",  # left
+                word,  # target
+                "",  # right
+            )
+            for target in words_per_target
+            for word_index, word in enumerate(target)
+        ]
 
         # produce target masks
         target_masks = self._batch_create_target_mask(
@@ -257,38 +247,49 @@ class FXEasyTokenizer:
             is_raise_exception_if_target_after_max_seq_len=False,
         )
 
-        target_masks = torch.LongTensor(target_masks)
-        # multiply by word_indices (including offset)
-        target_masks = torch.mul(
-            target_masks,
-            torch.tensor(
-                tuple(
-                    range(offset, offset + len(wpt))
-                    for wpt, offset in zip(words_per_target, offsets)
-                )
-            ).reshape((-1, 1)),
-        )
-
         # split back into targets
-        wordpiece_mappings_per_target = target_masks.split(
-            [len(t) for t in words_per_target], dim=0
-        )
-        out = []
-        for mapping in wordpiece_mappings_per_target:
-            # make sure there is no overlap
-            if type(tokenizer) == RobertaTokenizer:
-                if mapping.prod(0).sum() > 0:
-                    logger.debug(
-                        "overlap when mapping tokens to wordpiece (allow overwriting because"
-                        " Roberta is used)"
-                    )
-            else:
-                assert mapping.prod(0).sum() == 0
-            mapping = mapping.sum(0)
-            assert mapping.shape[0] <= self.max_seq_len
-            out.append(mapping)
+        _indexer = 0
+        target_masks_per_target = [
+            target_masks[_indexer : (_indexer := _indexer + len(wpt))]
+            for wpt in words_per_target
+        ]
 
-        return out, previous_words_per_target
+        # remove "toolong" (word is after the max seq len)
+        valid_target_masks_per_target = []
+        valid_tokens = []
+        for target, tokens in zip(target_masks_per_target, words_per_target):
+            indexer = target.index("toolong") if "toolong" in target else None
+            valid_target_masks_per_target.append(target[:indexer])
+            valid_tokens.append(tokens[:indexer])
+
+        # convert to tensor
+        wordpiece_mappings_per_target = torch.LongTensor(valid_target_masks_per_target)
+
+        # multiply by word indices (including offsets)
+        word_indices_multiplier = torch.tensor(
+            tuple(
+                range(offset, offset + len(tmpt))
+                for tmpt, offset in zip(valid_target_masks_per_target, offsets)
+            )
+        ).unsqueeze(-1)
+        wordpiece_mappings_per_target = torch.mul(
+            wordpiece_mappings_per_target,
+            word_indices_multiplier,
+        )
+
+        if type(tokenizer) == RobertaTokenizer:
+            if any(wordpiece_mappings_per_target.prod(1).sum(1) > 0):
+                logger.debug(
+                    "overlap when mapping tokens to wordpiece (allow overwriting because"
+                    " Roberta is used)"
+                )
+        else:
+            assert all(wordpiece_mappings_per_target.prod(1).sum(1) == 0)
+
+        mappings = wordpiece_mappings_per_target.sum(1)
+        assert mappings.shape[1] <= self.max_seq_len
+
+        return mappings, valid_tokens
 
     def _calculate_dep_matrix(self, text_tokens, text_tokens_as_str):
         _check_len_doc = len(text_tokens)
