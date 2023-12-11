@@ -192,9 +192,8 @@ class FXEasyTokenizer:
         # offset word_index by 1 (0th word has index 1)
         # words_without_single_whitespace = [word for word in words if word != " "]
         for word_index, word in enumerate(words, start=offset):
-            # update left and previous words
+            # update left words
             left = " ".join(previous_words) + " "
-            previous_words.append(word)
 
             # produce target masks
             target_mask = self._create_target_mask(
@@ -211,6 +210,9 @@ class FXEasyTokenizer:
                 # we abort the for loop since all remaining words will also be
                 # after the max seq len
                 break
+
+            # update previous words
+            previous_words.append(word)
 
             target_mask = torch.LongTensor(target_mask)
             target_mask = torch.mul(target_mask, word_index)
