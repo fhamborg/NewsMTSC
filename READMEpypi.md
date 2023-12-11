@@ -16,7 +16,7 @@ dataset, the model, and its source code can be viewed in our [GitHub repository]
 # Installation
 It's super easy, we promise! 
 
-You just need a Python 3.7 or Python 3.8 environment. See [here](https://raw.githubusercontent.com/fhamborg/NewsMTSC/main/pythoninfo.md) if you 
+You just need a Python 3.8 environment. See [here](https://raw.githubusercontent.com/fhamborg/NewsMTSC/main/pythoninfo.md) if you 
 don't have Python or a different version (run `python --version` in a terminal to see 
 your version). Then run:
 
@@ -43,6 +43,32 @@ print(sentiment[0])
 sentiment = tsc.infer_from_text("" ,"Mark Meadows", "'s coverup of Trump’s coup attempt is falling apart.")
 print(sentiment[0])
 ```
+
+## NEW: Faster classification in batches
+
+To compute sentiment for batches of targets in a vectorized fashion, you can now feed them all at once into NewsMTSC.
+
+```python
+targets = [
+    ("I like ", "Peter", " but I don't like Robert."),
+    ("", "Mark Meadows", "'s coverup of Trump’s coup attempt is falling apart."),
+]
+
+sentiments = tsc.infer(targets=targets)
+
+for num_target, result in enumerate(sentiments,1):
+  print("Target", num_target, result[0])
+```
+
+We also provide a convenience method to take care of the batching for you.
+
+```python
+sentiments = tsc.split_and_infer(
+  targets=targets, batch_size=32
+)
+```
+
+
 
 # How to identify a person in a sentence?
 
