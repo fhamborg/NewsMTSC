@@ -25,18 +25,18 @@ NewsMTSC was tested on MacOS and Ubuntu; other OS may work, too. Let us know :-)
 
 **1. Setup the environment:**
 
-This step is optional if you have Python 3.7 installed already (`python --version`). If you don't have Python 3.7, we recommend using Anaconda for setting up requirements. If you do not have it yet, follow Anaconda's
+This step is optional if you have Python 3.8 installed already (`python --version`). If you don't have Python 3.8, we recommend using Anaconda for setting up requirements. If you do not have it yet, follow Anaconda's
 [installation instructions](https://docs.anaconda.com/anaconda/install/). 
 
-To setup a Python 3.7 environment (in case you don't have one yet) you may use, for example:
+To setup a Python 3.8 environment (in case you don't have one yet) you may use, for example:
 ```bash
-conda create --yes -n newsmtsc python=3.7
+conda create --yes -n newsmtsc python=3.8
 conda activate newsmtsc
 ```
 
 FYI, for users of virtualenv, the equivalent command would be:
 ```bash
-virtualenv -ppython3.7 --setuptools 45 venv
+virtualenv -ppython3.8 --setuptools 45 venv
 source venv/bin/activate
 ```
 
