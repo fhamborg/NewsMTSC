@@ -55,20 +55,12 @@ targets = [
     ("", "Mark Meadows", "'s coverup of Trump’s coup attempt is falling apart."),
 ]
 
-sentiments = tsc.infer(targets=targets)
+# adjust batch_size to your needs (e.g. 32 or 64 for bigger data)
+sentiments = tsc.infer(targets=targets, batch_size=2)
 
 for num_target, result in enumerate(sentiments):
   print("Target: ", num_target, result[0])
 ```
-
-We also provide a convenience method to take care of the batching for you.
-
-```python
-sentiments = tsc.split_and_infer(
-  targets=targets, batch_size=32
-)
-```
-
 
 
 # How to identify a person in a sentence?
