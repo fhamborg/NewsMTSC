@@ -37,36 +37,35 @@ Since this is a one-time process, future use of NewsSentiment will be much faste
 from NewsSentiment import TargetSentimentClassifier
 tsc = TargetSentimentClassifier()
 
-sentiment = tsc.infer_from_text("I like " ,"Peter", " but I don't like Robert.")
-print(sentiment[0])
-
-sentiment = tsc.infer_from_text("" ,"Mark Meadows", "'s coverup of Trump’s coup attempt is falling apart.")
-print(sentiment[0])
-```
-
-## Faster classification in batches (faster)
-
-To compute sentiment for batches of targets in a vectorized fashion, you can also feed them all at once into NewsMTSC. This 
-is much faster than calling `infer_from_text` multiple times.
-
-```python
-targets = [
+data = [
     ("I like ", "Peter", " but I don't like Robert."),
     ("", "Mark Meadows", "'s coverup of Trump’s coup attempt is falling apart."),
 ]
 
-# adjust batch_size to your needs (e.g. 32 or 64 for bigger data)
-sentiments = tsc.infer(targets=targets, batch_size=2)
+sentiments = tsc.infer(targets=data)
 
-for num_target, result in enumerate(sentiments):
-  print("Target: ", num_target, result[0])
+for i, result in enumerate(sentiments):
+    print("Sentiment: ", i, result[0])
 ```
 
+This method will internally split the data into batches of size 16 for increased speed. You can adjust the
+batch size using the `batch_size` parameter, e.g., `batch_size=32`.
+
+Alternatively, you can also use the `infer_from_text` method to infer sentiment for a single target:
+
+```python
+sentiment = tsc.infer_from_text("I like " ,"Peter", " but I don't like Robert.")
+print(sentiment[0])
+```
 
 # How to identify a person in a sentence?
 
 In case your data is not separated as shown in the examples above, i.e., in three segments, you will need to identify one (or more) targets first.
 How this is done best depends on your project and analysis task but you may, for example, use NER. This [example](https://github.com/fhamborg/NewsMTSC/issues/30#issuecomment-1700645679) shows a simple way of doing so.
+
+# Acknowledgements
+
+Thanks to [Tilman Hornung](https://github.com/t1h0) for adding the batching functionality and various other improvements.
 
 # How to cite
 If you use the dataset or model, please cite our [paper](https://www.aclweb.org/anthology/2021.eacl-main.142/) ([PDF](https://www.aclweb.org/anthology/2021.eacl-main.142.pdf)):
