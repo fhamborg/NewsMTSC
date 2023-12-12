@@ -44,9 +44,10 @@ sentiment = tsc.infer_from_text("" ,"Mark Meadows", "'s coverup of Trump’s cou
 print(sentiment[0])
 ```
 
-## NEW: Faster classification in batches
+## Faster classification in batches (faster)
 
-To compute sentiment for batches of targets in a vectorized fashion, you can now feed them all at once into NewsMTSC.
+To compute sentiment for batches of targets in a vectorized fashion, you can also feed them all at once into NewsMTSC. This 
+is much faster than calling `infer_from_text` multiple times.
 
 ```python
 targets = [
@@ -56,8 +57,8 @@ targets = [
 
 sentiments = tsc.infer(targets=targets)
 
-for num_target, result in enumerate(sentiments,1):
-  print("Target", num_target, result[0])
+for num_target, result in enumerate(sentiments):
+  print("Target: ", num_target, result[0])
 ```
 
 We also provide a convenience method to take care of the batching for you.
