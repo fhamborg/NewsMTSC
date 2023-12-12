@@ -262,32 +262,31 @@ class FXEasyTokenizer:
             valid_target_masks_per_target.append(target[:indexer])
             valid_tokens.append(tokens[:indexer])
 
-        # convert to tensor
-        wordpiece_mappings_per_target = torch.LongTensor(valid_target_masks_per_target)
+        # convert to tensors
+        mappings = []
 
-        # multiply by word indices (including offsets)
-        word_indices_multiplier = torch.tensor(
-            tuple(
-                range(offset, offset + len(tmpt))
-                for tmpt, offset in zip(valid_target_masks_per_target, offsets)
+        for target, offset in zip(valid_target_masks_per_target, offsets):
+            target_tensor = torch.LongTensor(target)
+
+            word_indices_multiplier = torch.tensor(
+                range(offset, offset + len(target_tensor))
             )
-        ).unsqueeze(-1)
-        wordpiece_mappings_per_target = torch.mul(
-            wordpiece_mappings_per_target,
-            word_indices_multiplier,
-        )
+            target_tensor = target_tensor.mul(word_indices_multiplier.unsqueeze(-1))
 
-        if type(tokenizer) == RobertaTokenizer:
-            if any(wordpiece_mappings_per_target.prod(1).sum(1) > 0):
-                logger.debug(
-                    "overlap when mapping tokens to wordpiece (allow overwriting because"
-                    " Roberta is used)"
-                )
-        else:
-            assert all(wordpiece_mappings_per_target.prod(1).sum(1) == 0)
+            if type(tokenizer) == RobertaTokenizer:
+                if target_tensor.prod(0).sum(0) > 0:
+                    logger.debug(
+                        "overlap when mapping tokens to wordpiece (allow overwriting because"
+                        " Roberta is used)"
+                    )
+            else:
+                assert target_tensor.prod(0).sum(0) == 0
 
-        mappings = wordpiece_mappings_per_target.sum(1)
-        assert mappings.shape[1] <= self.max_seq_len
+            target_tensor = target_tensor.sum(0)
+
+            assert target_tensor.size(0) <= self.max_seq_len
+
+            mappings.append(target_tensor)
 
         return mappings, valid_tokens
 
