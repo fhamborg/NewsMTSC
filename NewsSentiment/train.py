@@ -6,6 +6,7 @@ import sys
 import time
 from collections import Counter
 from typing import Iterable
+import logging
 
 import numpy
 import torch
@@ -261,9 +262,19 @@ class Instructor:
             self.transformer_tokenizers[
                 pretrained_weights_name
             ] = tokenizer_class.from_pretrained(model_path)
+            
+            # supress the transformers warning
+            # "Some weights of the model checkpoint..were not used.."
+            transformers_logger = logging.getLogger('transformers.modeling_utils')
+            transformers_logger_level = transformers_logger.getEffectiveLevel()
+            transformers_logger.setLevel(logging.ERROR)
+
             self.transformer_models[
                 pretrained_weights_name
             ] = model_class.from_pretrained(model_path, output_hidden_states=True)
+            
+            # reset transformers logging level
+            transformers_logger.setLevel(transformers_logger_level)
 
     def _reset_params_of_own_model(self):
         for child in self.own_model.children():
