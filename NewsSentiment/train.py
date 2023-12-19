@@ -390,7 +390,7 @@ class Instructor:
                 for i_batch, sample_batched in enumerate(train_data_loader):
                     global_step += 1
                     # clear gradient accumulators
-                    optimizer.zero_grad()
+                    optimizer.zero_grad(set_to_none = False)
                     # select only relevant fields
                     inputs = self.select_inputs(sample_batched)
                     targets = sample_batched["polarity"].to(self.opt.device)

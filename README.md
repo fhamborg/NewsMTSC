@@ -40,6 +40,8 @@ virtualenv -ppython3.8 --setuptools 45 venv
 source venv/bin/activate
 ```
 
+Note: We recommend Python 3.8, however we have successfully tested NewsMTSC with Python version >=3.8, <3.12.
+
 **2. Setup NewsMTSC:**
 ```bash
 git clone git@github.com:fhamborg/NewsMTSC.git
