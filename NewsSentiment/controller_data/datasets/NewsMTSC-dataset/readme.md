@@ -9,7 +9,7 @@ The dataset consists of three splits. In practical terms, we suggest to use the 
 
 * `train.jsonl` - For **training**.
 * `devtest_mt.jsonl` - To evaluate a model's classification performance only on sentences that contain **at least two target mentions**. Note that the mentions were extracted to refer to different persons but in a few cases might indeed refer to the same person since we extracted them automatically.
-* `devtest_mt.jsonl` - To evaluate a model's classification performance on a "**real-world**" set of sentences, i.e., the set was created with the objective to resemble real-world distribution as to sentiment and other factors mentioned in the paper.
+* `devtest_rw.jsonl` - To evaluate a model's classification performance on a "**real-world**" set of sentences, i.e., the set was created with the objective to resemble real-world distribution as to sentiment and other factors mentioned in the paper.
 
 
 ### Format
